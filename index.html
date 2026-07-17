@@ -157,6 +157,42 @@ button.answer:disabled{opacity:.92}
 
 .roomcode{font-family:'Lilita One',cursive;font-size:3rem;letter-spacing:.35em;text-align:center;
   color:var(--gold);text-shadow:0 3px 0 #7A5A00;padding-left:.35em}
+/* store, pets, modal */
+.coinchip{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--panel);
+  border:1px solid var(--gold);border-radius:999px;padding:8px 18px;font-family:'Lilita One',cursive;
+  font-size:1.05rem;color:var(--gold);width:max-content;margin:0 auto;cursor:pointer}
+.tabs{display:flex;gap:8px}
+.tab{flex:1;text-align:center;padding:10px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line);font-weight:800;cursor:pointer}
+.tab.on{background:var(--gold);color:var(--midnight);border-color:var(--gold)}
+.catbar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.catbar .chip-btn{flex:none}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.shopcell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 4px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.shopcell .se{font-size:1.7rem}
+.shopcell .sp{font-size:.68rem;color:var(--dim);font-weight:800}
+.shopcell.owned{border-color:var(--gold)}
+.shopcell.owned .sp{color:var(--gold)}
+.petcard{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:12px;cursor:pointer}
+.petcard .pe{font-size:2.2rem}
+.petcard .who{flex:1;min-width:0}
+.petstage{position:relative;height:220px;display:flex;align-items:center;justify-content:center;
+  background:var(--stage);border:1px solid var(--line);border-radius:18px}
+.petstage .pet{font-size:6.5rem;cursor:pointer;user-select:none}
+.petstage .acc{position:absolute;font-size:2rem}
+.acc.top{top:8px;left:50%;transform:translateX(-50%)}
+.acc.left{left:12%;top:44%}
+.acc.right{right:12%;top:44%}
+.acc.bl{left:18%;bottom:10px}
+.acc.br{right:18%;bottom:10px}
+.petfloat{position:absolute;font-size:1.7rem;animation:floatup 1.2s ease forwards;pointer-events:none}
+.modal-ov{position:fixed;inset:0;background:rgba(4,8,25,.72);display:flex;align-items:center;
+  justify-content:center;z-index:70;padding:20px}
+.modal-card{background:var(--stage);border:1px solid var(--line);border-radius:18px;padding:20px;
+  width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.modal-card p{font-weight:800;text-align:center}
 #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--panel);
   border:1px solid var(--line);color:var(--paper);padding:11px 18px;border-radius:999px;
   font-weight:800;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:60;
@@ -197,9 +233,11 @@ button.answer:disabled{opacity:.92}
   <div class="topbar">
     <button class="iconbtn" onclick="showScreen('scr-profiles')" id="home-av">🦊</button>
     <h2 class="title" id="home-name">Player</h2>
+    <button class="iconbtn" onclick="openEdit(profile,'scr-home')">✏️</button>
     <button class="iconbtn" onclick="showScreen('scr-settings')">⚙️</button>
   </div>
   <h1 class="logo">Brainstorm<small>Trivia</small></h1>
+  <div class="coinchip" onclick="openStore()">🪙 <span id="coin-bal">0</span></div>
   <button class="btn" onclick="openSetup('solo')">Play solo</button>
   <div class="btnrow">
     <button class="btn secondary" onclick="openSetup('host')">Host a match</button>
@@ -209,7 +247,10 @@ button.answer:disabled{opacity:.92}
     <button class="btn secondary" onclick="openBoard()">Leaderboard</button>
     <button class="btn secondary" onclick="openBests()">My bests</button>
   </div>
-  <button class="btn secondary" onclick="openStandings()">Match standings</button>
+  <div class="btnrow">
+    <button class="btn secondary" onclick="openStore()">Store</button>
+    <button class="btn secondary" onclick="openStandings()">Match standings</button>
+  </div>
 </section>
 
 <!-- ============ GAME SETUP ============ -->
@@ -290,6 +331,7 @@ button.answer:disabled{opacity:.92}
     <div class="st"><b id="res-streak">0</b><span>Best streak</span></div>
     <div class="st"><b id="res-diff">–</b><span>Difficulty</span></div>
   </div>
+  <p class="hint" id="res-coins" style="color:var(--gold);font-size:1rem"></p>
   <div class="list" id="res-rankings"></div>
   <button class="btn" id="res-again" onclick="playAgain()">Play again</button>
   <button class="btn secondary" onclick="goHome()">Home</button>
@@ -337,6 +379,71 @@ button.answer:disabled{opacity:.92}
   <div class="card"><p class="hint" id="set-status"></p></div>
   <button class="btn secondary" onclick="showScreen('scr-profiles')">Switch player</button>
 </section>
+
+<!-- ============ STORE ============ -->
+<section class="screen" id="scr-store">
+  <div class="topbar">
+    <button class="iconbtn" onclick="goHome()">←</button>
+    <h2 class="title">Store</h2><span class="spacer38"></span>
+  </div>
+  <div class="coinchip">🪙 <span id="store-bal">0</span></div>
+  <div class="tabs">
+    <div class="tab on" id="tab-emoji" onclick="storeTab('emoji')">Emoji</div>
+    <div class="tab" id="tab-pets" onclick="storeTab('pets')">Pets</div>
+  </div>
+  <div id="store-emoji">
+    <div class="catbar" id="shop-cats"></div>
+    <div class="shopgrid" id="shop-grid" style="margin-top:10px"></div>
+  </div>
+  <div id="store-pets" class="hidden">
+    <div class="grouplabel">My pets</div>
+    <div class="list" id="mypets"></div>
+    <div class="grouplabel" style="margin-top:10px">Adopt a pet — 5,000 🪙</div>
+    <div class="list" id="petshop"></div>
+  </div>
+</section>
+
+<!-- ============ PET ROOM ============ -->
+<section class="screen" id="scr-pet">
+  <div class="topbar">
+    <button class="iconbtn" onclick="openStoreTab('pets')">←</button>
+    <h2 class="title" id="pet-name">Pet</h2>
+    <button class="iconbtn" onclick="renamePet()">✏️</button>
+  </div>
+  <p class="hint" id="pet-mood"></p>
+  <div class="petstage" id="pet-stage"></div>
+  <div class="btnrow">
+    <button class="btn secondary" onclick="feedPet()">🍽️ Feed</button>
+    <button class="btn secondary" onclick="petPet()">🤗 Pet</button>
+  </div>
+  <div class="grouplabel">Accessories — 5,000 🪙 each</div>
+  <div class="list" id="pet-acc"></div>
+</section>
+
+<!-- ============ EDIT PROFILE ============ -->
+<section class="screen" id="scr-edit">
+  <div class="topbar">
+    <button class="iconbtn" onclick="cancelEdit()">←</button>
+    <h2 class="title">Edit profile</h2><span class="spacer38"></span>
+  </div>
+  <input class="txt" id="ep-name" maxlength="16" placeholder="Name">
+  <div class="grouplabel">Color</div>
+  <div class="swatches" id="ep-colors"></div>
+  <div class="grouplabel">Avatar — unlock more in the Store</div>
+  <div class="animals" id="ep-animals"></div>
+  <button class="btn" onclick="saveProfileEdits()">Save</button>
+</section>
+
+<div class="modal-ov hidden" id="modal">
+  <div class="modal-card">
+    <p id="modal-text"></p>
+    <input class="txt hidden" id="modal-input" maxlength="16">
+    <div class="btnrow">
+      <button class="btn secondary" id="modal-cancel">Cancel</button>
+      <button class="btn" id="modal-ok">OK</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ================= CONFIG ================= */
@@ -469,8 +576,13 @@ async function loadProfiles(){
 function renderProfiles(){
   const g=$('#profile-grid'); g.innerHTML='';
   profiles.forEach(p=>{
-    const d=document.createElement('div'); d.className='pcard';
+    const d=document.createElement('div'); d.className='pcard'; d.style.position='relative';
     d.innerHTML=`<div class="av" style="background:${esc(p.color)}">${esc(p.animal)}</div><div class="nm">${esc(p.name)}</div>`;
+    const eb=document.createElement('button');
+    eb.className='iconbtn'; eb.textContent='✏️';
+    eb.style.cssText='position:absolute;top:6px;right:6px;width:26px;height:26px;font-size:.68rem;border-radius:8px';
+    eb.onclick=ev=>{ ev.stopPropagation(); openEdit(p,'scr-profiles'); };
+    d.appendChild(eb);
     d.onclick=()=>{ profile=p; localStorage.setItem('bt_profile_id',p.id); goHome(); };
     g.appendChild(d);
   });
@@ -517,10 +629,38 @@ function saveLocalProfile(p){
 }
 function goHome(){
   stopPolling();
+  renderHome();
+  showScreen('scr-home');
+  refreshProfile().then(renderHome);
+}
+function renderHome(){
+  if(!profile) return;
   $('#home-name').textContent=profile.name;
   $('#home-av').textContent=profile.animal;
   $('#home-av').style.background=profile.color;
-  showScreen('scr-home');
+  updateCoinUI();
+}
+function saveLocalProfileEdit(p){
+  const l=JSON.parse(localStorage.getItem('bt_profiles_local')||'[]');
+  const i=l.findIndex(x=>x.id===p.id);
+  if(i>-1){ l[i]={...l[i],...p}; localStorage.setItem('bt_profiles_local',JSON.stringify(l)); }
+}
+async function patchProfile(fields){
+  Object.assign(profile,fields);
+  if(cloudReady()){
+    try{
+      const rows=await sbPatch('bt_profiles',`id=eq.${enc(profile.id)}`,fields);
+      if(rows && rows[0]) profile=rows[0];
+    }catch(e){ toast('Cloud sync failed — change saved on this device'); }
+  } else saveLocalProfileEdit(profile);
+  updateCoinUI();
+}
+async function refreshProfile(){
+  if(!profile || !cloudReady()) return;
+  try{
+    const rows=await sbGet('bt_profiles',`id=eq.${enc(profile.id)}&select=*`);
+    if(rows && rows[0]) profile=rows[0];
+  }catch(e){}
 }
 
 /* ================= THE TRIVIA API ================= */
@@ -696,6 +836,7 @@ async function finishSolo(){
   const best=await priorBest(game.diff);
   const pb=game.score>best;
   await saveScore('solo',null);
+  $('#res-coins').textContent='';
   $('#res-title').textContent='Final score';
   $('#res-pb').classList.toggle('hidden',!pb);
   $('#res-score').textContent=game.score.toLocaleString();
@@ -887,6 +1028,12 @@ async function finishMp(){
   const best=await priorBest(game.diff);
   const pb=game.score>best;
   await saveScore('multi',won);
+  const earned=mp.meRow.score||0;
+  if(earned>0){
+    await refreshProfile();
+    await patchProfile({ coins:(profile.coins||0)+earned });
+  }
+  $('#res-coins').textContent = earned>0 ? `+${earned.toLocaleString()} 🪙 earned` : '';
   $('#res-title').textContent=won?'🏆 You won!':'Final rankings';
   $('#res-pb').classList.toggle('hidden',!pb);
   $('#res-score').textContent=game.score.toLocaleString();
@@ -1003,6 +1150,279 @@ async function openStandings(){
       <span class="pts">🏆 ${r.wins}</span>`;
     w.appendChild(d);
   });
+}
+
+/* ================= STORE: COINS & EMOJI ================= */
+const SHOP_EMOJI = {"Smileys": ["😀️", "😁️", "😂️", "😃️", "😄️", "😅️", "😆️", "😇️", "😈️", "😉️", "😊️", "😋️", "😌️", "😍️", "😎️", "😏️", "😐️", "😑️", "😒️", "😓️", "😔️", "😕️", "😖️", "😗️", "😘️", "😙️", "😚️", "😛️", "😜️", "😝️", "😞️", "😟️", "😠️", "😡️", "😢️", "😣️", "😤️", "😥️", "😦️", "😧️", "😨️", "😩️", "😪️", "😫️", "😬️", "😭️", "😮️", "😯️", "😰️", "😱️", "😲️", "😳️", "😴️", "😵️", "😶️", "😷️", "😸️", "😹️", "😺️", "😻️", "😼️", "😽️", "😾️", "😿️", "🙀️", "🙁️", "🙂️", "🙃️", "🙄️", "🙅️", "🙆️", "🙇️", "🙈️", "🙉️", "🙊️", "🙋️", "🙌️", "🙍️", "🙎️", "🙏️", "🤐️", "🤑️", "🤒️", "🤓️", "🤔️", "🤕️", "🤗️", "🤘️", "🤙️", "🤚️", "🤛️", "🤜️", "🤝️", "🤞️", "🤟️", "🤠️", "🤡️", "🤢️", "🤣️", "🤤️", "🤥️", "🤦️", "🤧️", "🤨️", "🤩️", "🤪️", "🤫️", "🤬️", "🤭️", "🤮️", "🤯️", "🥰️", "🥱️", "🥲️", "🥳️", "🥴️", "🥵️", "🥶️", "🥸️", "🥹️", "🥺️", "🧐️", "🫠️", "🫡️", "🫢️", "🫣️", "🫤️", "🫥️", "🫦️", "🫧️", "🫨️"], "Hearts": ["💓️", "💔️", "💕️", "💖️", "💗️", "💘️", "💙️", "💚️", "💛️", "💜️", "💝️", "💞️", "💟️", "🖤️", "🤍️", "🤎️", "🤏️", "🩵️", "🩶️", "🩷️"], "People": ["👆️", "👇️", "👈️", "👉️", "👊️", "👋️", "👌️", "👍️", "👎️", "👏️", "👐️", "👦️", "👧️", "👨️", "👩️", "👪️", "👫️", "👬️", "👭️", "👮️", "👯️", "👰️", "👱️", "👲️", "👳️", "👴️", "👵️", "👶️", "👷️", "👸️", "👻️", "👼️", "👽️", "👾️", "👿️", "💀️", "💁️", "💂️", "💃️", "🤰️", "🤱️", "🤲️", "🤳️", "🤴️", "🤵️", "🤶️", "🤷️", "🤸️", "🤹️", "🤺️", "🤻️", "🤼️", "🤽️", "🦴️", "🦵️", "🦶️", "🦷️", "🦸️", "🦹️", "🦺️", "🦻️", "🦼️", "🦽️", "🦾️", "🦿️", "🫰️", "🫱️", "🫲️", "🫳️", "🫴️", "🫵️", "🫶️", "🫷️", "🫸️"], "Animals": ["🐀️", "🐁️", "🐂️", "🐃️", "🐄️", "🐅️", "🐆️", "🐇️", "🐈️", "🐉️", "🐊️", "🐋️", "🐌️", "🐍️", "🐎️", "🐏️", "🐐️", "🐑️", "🐒️", "🐓️", "🐔️", "🐕️", "🐖️", "🐗️", "🐘️", "🐙️", "🐚️", "🐛️", "🐜️", "🐝️", "🐞️", "🐟️", "🐠️", "🐡️", "🐢️", "🐣️", "🐤️", "🐥️", "🐦️", "🐧️", "🐨️", "🐩️", "🐪️", "🐫️", "🐬️", "🐭️", "🐮️", "🐯️", "🐰️", "🐱️", "🐲️", "🐳️", "🐴️", "🐵️", "🐶️", "🐷️", "🐸️", "🐹️", "🐺️", "🐻️", "🐼️", "🐽️", "🐾️", "🐿️", "🦀️", "🦁️", "🦂️", "🦃️", "🦄️", "🦅️", "🦆️", "🦇️", "🦈️", "🦉️", "🦊️", "🦋️", "🦌️", "🦍️", "🦎️", "🦏️", "🦐️", "🦑️", "🦒️", "🦓️", "🦔️", "🦕️", "🦖️", "🦗️", "🦘️", "🦙️", "🦚️", "🦛️", "🦜️", "🦝️", "🦞️", "🦟️", "🦠️", "🦡️", "🦢️", "🦣️", "🦤️", "🦥️", "🦦️", "🦧️", "🦨️", "🦩️", "🦪️", "🦫️", "🦬️", "🦭️", "🦮️", "🪰️", "🪱️", "🪲️", "🪳️", "🪴️", "🪵️", "🪶️", "🪷️", "🪸️", "🪹️", "🪺️", "🪻️", "🪼️", "🪽️"], "Nature": ["🌀️", "🌁️", "🌂️", "🌃️", "🌄️", "🌅️", "🌆️", "🌇️", "🌈️", "🌉️", "🌊️", "🌋️", "🌌️", "🌍️", "🌎️", "🌏️", "🌐️", "🌑️", "🌒️", "🌓️", "🌔️", "🌕️", "🌖️", "🌗️", "🌘️", "🌙️", "🌚️", "🌛️", "🌜️", "🌝️", "🌞️", "🌟️", "🌠️", "🌡️", "🌢️", "🌣️", "🌤️", "🌥️", "🌦️", "🌧️", "🌨️", "🌩️", "🌪️", "🌫️", "🌬️", "🌱️", "🌲️", "🌳️", "🌴️", "🌵️", "🌶️", "🌷️", "🌸️", "🌹️", "🌺️", "🌻️", "🌼️", "🌽️", "🌾️", "🌿️", "🍀️", "🍁️", "🍂️", "🍃️", "🍄️"], "Food": ["🌭️", "🌮️", "🌯️", "🌰️", "🍅️", "🍆️", "🍇️", "🍈️", "🍉️", "🍊️", "🍋️", "🍌️", "🍍️", "🍎️", "🍏️", "🍐️", "🍑️", "🍒️", "🍓️", "🍔️", "🍕️", "🍖️", "🍗️", "🍘️", "🍙️", "🍚️", "🍛️", "🍜️", "🍝️", "🍞️", "🍟️", "🍠️", "🍡️", "🍢️", "🍣️", "🍤️", "🍥️", "🍦️", "🍧️", "🍨️", "🍩️", "🍪️", "🍫️", "🍬️", "🍭️", "🍮️", "🍯️", "🍰️", "🍱️", "🍲️", "🍳️", "🍴️", "🍵️", "🍼️", "🍽️", "🍿️", "🥐️", "🥑️", "🥒️", "🥓️", "🥔️", "🥕️", "🥖️", "🥗️", "🥘️", "🥙️", "🥚️", "🥛️", "🥜️", "🥝️", "🥞️", "🥟️", "🥠️", "🥡️", "🥢️", "🥣️", "🥤️", "🥥️", "🥦️", "🥧️", "🥨️", "🥩️", "🥪️", "🥫️", "🥬️", "🥭️", "🥮️", "🥯️", "🧀️", "🧁️", "🧂️", "🧃️", "🧄️", "🧅️", "🧆️", "🧇️", "🧈️", "🧉️", "🧊️", "🧋️", "🫐️", "🫑️", "🫒️", "🫓️", "🫔️", "🫕️", "🫖️", "🫗️", "🫘️", "🫙️", "🫚️", "🫛️"], "Activities": ["🎀️", "🎁️", "🎂️", "🎃️", "🎄️", "🎅️", "🎆️", "🎇️", "🎈️", "🎉️", "🎊️", "🎋️", "🎌️", "🎍️", "🎎️", "🎏️", "🎐️", "🎑️", "🎒️", "🎓️", "🎠️", "🎡️", "🎢️", "🎣️", "🎤️", "🎥️", "🎦️", "🎧️", "🎨️", "🎩️", "🎪️", "🎫️", "🎬️", "🎭️", "🎮️", "🎯️", "🎰️", "🎱️", "🎲️", "🎳️", "🎴️", "🎵️", "🎶️", "🎷️", "🎸️", "🎹️", "🎺️", "🎻️", "🎼️", "🎽️", "🎾️", "🎿️", "🏀️", "🏁️", "🏂️", "🏃️", "🏄️", "🏅️", "🏆️", "🏇️", "🏈️", "🏉️", "🏊️", "🏏️", "🏐️", "🏑️", "🏒️", "🏓️", "🥅️", "🥇️", "🥈️", "🥉️", "🥊️", "🥋️", "🥌️", "🥍️", "🥎️", "🥏️"], "Travel": ["🏠️", "🏡️", "🏢️", "🏣️", "🏤️", "🏥️", "🏦️", "🏧️", "🏨️", "🏩️", "🏪️", "🏫️", "🏬️", "🏭️", "🏮️", "🏯️", "🏰️", "🚀️", "🚁️", "🚂️", "🚃️", "🚄️", "🚅️", "🚆️", "🚇️", "🚈️", "🚉️", "🚊️", "🚋️", "🚌️", "🚍️", "🚎️", "🚏️", "🚐️", "🚑️", "🚒️", "🚓️", "🚔️", "🚕️", "🚖️", "🚗️", "🚘️", "🚙️", "🚚️", "🚛️", "🚜️", "🚝️", "🚞️", "🚟️", "🚠️", "🚡️", "🚢️", "🚣️", "🚤️", "🛫️", "🛬️"], "Objects": ["💄️", "💅️", "💆️", "💇️", "💈️", "💡️", "💢️", "💣️", "💤️", "💥️", "💦️", "💧️", "💨️", "💩️", "💪️", "💫️", "💬️", "💭️", "💮️", "💯️", "💰️", "💱️", "💲️", "💳️", "💴️", "💵️", "💶️", "💷️", "💸️", "💹️", "💺️", "💻️", "💼️", "💽️", "💾️", "💿️", "📀️", "📁️", "📂️", "📃️", "📄️", "📅️", "📆️", "📇️", "📈️", "📉️", "📊️", "📋️", "📌️", "📍️", "📎️", "📏️", "📐️", "📑️", "📒️", "📓️", "📔️", "📕️", "📖️", "📗️", "📘️", "📙️", "📚️", "📛️", "📜️", "📝️", "📞️", "📟️", "📠️", "📡️", "📢️", "📣️", "📤️", "📥️", "📦️", "📧️", "📨️", "📩️", "📪️", "📫️", "📬️", "📭️", "📮️", "📯️", "📰️", "📱️", "📲️", "📳️", "📴️", "📵️", "📶️", "📷️", "📸️", "📹️", "📺️", "📻️", "📼️", "🔇️", "🔈️", "🔉️", "🔊️", "🔋️", "🔌️", "🔍️", "🔎️", "🔏️", "🔐️", "🔑️", "🔒️", "🔓️", "🔔️", "🔕️", "🔖️", "🔗️", "🔘️", "🔙️", "🔚️", "🔛️", "🔜️", "🔝️", "🔞️", "🔟️", "🔠️", "🔡️", "🔢️", "🔣️", "🔤️", "🔥️", "🔦️", "🔧️", "🔨️", "🔩️", "🔪️", "🔫️", "🔬️", "🔭️", "🔮️", "🔯️", "🧠️", "🧡️", "🧢️", "🧣️", "🧤️", "🧥️", "🧦️", "🧧️", "🧨️", "🧩️", "🧪️", "🧫️", "🧬️", "🧭️", "🧮️", "🧯️", "🧰️", "🧱️", "🧲️", "🧳️", "🧴️", "🧵️", "🧶️", "🧷️", "🧸️", "🧹️", "🧺️", "🧻️", "🧼️", "🧽️", "🧾️", "🧿️", "🪀️", "🪁️", "🪂️", "🪃️", "🪄️", "🪅️", "🪆️", "🪇️", "🪈️", "🪐️", "🪑️", "🪒️", "🪓️", "🪔️", "🪕️", "🪖️", "🪗️"]};
+const PET_PRICE=5000, ACC_PRICE=5000;
+const PETS={
+  cat:{ emoji:'🐱', label:'Cat', acc:[
+    {id:'hat',   e:'🎩', n:'Top Hat',      slot:'top'},
+    {id:'bow',   e:'🎀', n:'Bow',          slot:'left'},
+    {id:'yarn',  e:'🧶', n:'Yarn Ball',    slot:'right'},
+    {id:'bed',   e:'🛏️', n:'Cozy Bed',     slot:'bl'},
+    {id:'fish',  e:'🐟', n:'Fish Treat',   slot:'br'} ]},
+  dog:{ emoji:'🐶', label:'Dog', acc:[
+    {id:'shades',e:'🕶️', n:'Sunglasses',   slot:'top'},
+    {id:'ball',  e:'🎾', n:'Tennis Ball',  slot:'left'},
+    {id:'bone',  e:'🦴', n:'Bone',         slot:'right'},
+    {id:'house', e:'🏠', n:'Doghouse',     slot:'bl'},
+    {id:'scarf', e:'🧣', n:'Bandana',      slot:'br'} ]},
+  bunny:{ emoji:'🐰', label:'Bunny', acc:[
+    {id:'crown', e:'🌼', n:'Flower Crown', slot:'top'},
+    {id:'carrot',e:'🥕', n:'Carrot',       slot:'left'},
+    {id:'bow',   e:'🎀', n:'Bow',          slot:'right'},
+    {id:'garden',e:'🌿', n:'Garden Patch', slot:'bl'},
+    {id:'scarf', e:'🧣', n:'Tiny Scarf',   slot:'br'} ]}
+};
+const stripVS=s=>String(s).replace(/\uFE0F/g,'');
+const BASE_SET=new Set(ANIMALS.map(stripVS));
+function emojiPrice(e){
+  let h=7; for(const c of stripVS(e)){ h=(h*31 + c.codePointAt(0))>>>0; }
+  const r=h%100;
+  if(r<40) return 10000;
+  if(r<65) return 15000;
+  if(r<80) return 20000;
+  if(r<90) return 25000;
+  if(r<97) return 35000;
+  return 50000;
+}
+function ownedSet(){ return new Set((profile.unlocked||[]).map(stripVS)); }
+function updateCoinUI(){
+  const b=((profile&&profile.coins)||0).toLocaleString();
+  const a=$('#coin-bal'); if(a) a.textContent=b;
+  const c=$('#store-bal'); if(c) c.textContent=b;
+}
+function modal(text,{input=false,placeholder='',okLabel='OK'}={}){
+  return new Promise(res=>{
+    const ov=$('#modal'), inp=$('#modal-input');
+    $('#modal-text').textContent=text;
+    inp.classList.toggle('hidden',!input);
+    inp.value=''; inp.placeholder=placeholder;
+    $('#modal-ok').textContent=okLabel;
+    ov.classList.remove('hidden');
+    if(input) setTimeout(()=>inp.focus(),60);
+    const done=v=>{ ov.classList.add('hidden'); $('#modal-ok').onclick=null; $('#modal-cancel').onclick=null; res(v); };
+    $('#modal-ok').onclick=()=>done(input ? (inp.value.trim()||null) : true);
+    $('#modal-cancel').onclick=()=>done(input ? null : false);
+  });
+}
+let shopCat=Object.keys(SHOP_EMOJI)[0];
+async function openStore(){ await refreshProfile(); updateCoinUI(); storeTab('emoji'); showScreen('scr-store'); }
+async function openStoreTab(t){ await refreshProfile(); updateCoinUI(); storeTab(t); showScreen('scr-store'); }
+function storeTab(t){
+  $('#tab-emoji').classList.toggle('on',t==='emoji');
+  $('#tab-pets').classList.toggle('on',t==='pets');
+  $('#store-emoji').classList.toggle('hidden',t!=='emoji');
+  $('#store-pets').classList.toggle('hidden',t!=='pets');
+  if(t==='emoji'){ renderShopCats(); renderShopGrid(); } else renderPetsTab();
+}
+function renderShopCats(){
+  const w=$('#shop-cats'); w.innerHTML='';
+  Object.keys(SHOP_EMOJI).forEach(k=>{
+    const b=document.createElement('button');
+    b.className='chip-btn'+(k===shopCat?' on':''); b.textContent=k;
+    b.onclick=()=>{ shopCat=k; renderShopCats(); renderShopGrid(); };
+    w.appendChild(b);
+  });
+}
+function renderShopGrid(){
+  const w=$('#shop-grid'); w.innerHTML='';
+  const owned=ownedSet();
+  SHOP_EMOJI[shopCat].forEach(e=>{
+    if(BASE_SET.has(stripVS(e))) return;
+    const own=owned.has(stripVS(e));
+    const d=document.createElement('div'); d.className='shopcell'+(own?' owned':'');
+    d.innerHTML=`<span class="se">${e}</span><span class="sp">${own?'Owned ✓':'🪙 '+emojiPrice(e).toLocaleString()}</span>`;
+    d.onclick=()=> own ? wearPrompt(e) : buyEmoji(e);
+    w.appendChild(d);
+  });
+}
+async function wearPrompt(e){
+  if(await modal(`Wear ${e} as your avatar?`,{okLabel:'Wear it'})){
+    await patchProfile({animal:e}); renderHome(); toast('Avatar updated!');
+  }
+}
+async function buyEmoji(e){
+  const price=emojiPrice(e);
+  if((profile.coins||0)<price){ toast(`Not enough coins — that one's ${price.toLocaleString()} 🪙`); return; }
+  if(!await modal(`Buy ${e} for ${price.toLocaleString()} coins?`,{okLabel:'Buy'})) return;
+  await patchProfile({ coins:(profile.coins||0)-price, unlocked:[...(profile.unlocked||[]),e] });
+  renderShopGrid(); sfx('win'); toast(`${e} unlocked!`);
+  if(await modal(`Wear ${e} as your avatar now?`,{okLabel:'Wear it'})){
+    await patchProfile({animal:e}); renderHome();
+  }
+}
+
+/* ================= PETS ================= */
+let pets=[], curPet=null;
+async function loadPets(){
+  if(cloudReady()){
+    try{ pets=await sbGet('bt_pets',`profile_id=eq.${enc(profile.id)}&select=*&order=created_at`); return; }catch(e){}
+  }
+  pets=JSON.parse(localStorage.getItem('bt_pets_local')||'[]').filter(p=>p.profile_id===profile.id);
+}
+function savePetsLocal(){
+  const others=JSON.parse(localStorage.getItem('bt_pets_local')||'[]').filter(p=>p.profile_id!==profile.id);
+  localStorage.setItem('bt_pets_local',JSON.stringify([...others,...pets]));
+}
+async function renderPetsTab(){
+  await loadPets();
+  const mine=$('#mypets'); mine.innerHTML='';
+  if(!pets.length) mine.innerHTML='<p class="hint">No pets yet — adopt one below!</p>';
+  pets.forEach(p=>{
+    const d=document.createElement('div'); d.className='petcard';
+    d.innerHTML=`<span class="pe">${PETS[p.type].emoji}</span>
+      <div class="who"><div class="nm">${esc(p.name)}</div>
+      <div class="sub">${PETS[p.type].label} · ${(p.accessories||[]).length}/5 accessories</div></div>
+      <span class="chip-btn">Visit</span>`;
+    d.onclick=()=>openPet(p.id);
+    mine.appendChild(d);
+  });
+  const shop=$('#petshop'); shop.innerHTML='';
+  Object.keys(PETS).forEach(t=>{
+    const d=document.createElement('div'); d.className='petcard';
+    d.innerHTML=`<span class="pe">${PETS[t].emoji}</span>
+      <div class="who"><div class="nm">${PETS[t].label}</div></div>
+      <span class="chip-btn">Adopt</span>`;
+    d.onclick=()=>adoptPet(t);
+    shop.appendChild(d);
+  });
+}
+async function adoptPet(type){
+  if((profile.coins||0)<PET_PRICE){ toast('Not enough coins — pets are 5,000 🪙'); return; }
+  const name=await modal(`Name your new ${PETS[type].label.toLowerCase()}!`,{input:true,placeholder:'Pet name',okLabel:'Adopt'});
+  if(!name) return;
+  const now=new Date().toISOString();
+  let pet={ id:uuid(), profile_id:profile.id, type, name, accessories:[], equipped:[], fed_at:now, pet_at:null, created_at:now };
+  if(cloudReady()){
+    try{
+      const rows=await sbInsert('bt_pets',{ profile_id:profile.id, type, name, accessories:[], equipped:[], fed_at:now });
+      pet=rows[0];
+    }catch(e){ toast('Cloud sync failed — pet saved on this device'); }
+  }
+  pets.push(pet);
+  if(!cloudReady()) savePetsLocal();
+  await patchProfile({ coins:(profile.coins||0)-PET_PRICE });
+  sfx('win'); confetti();
+  renderPetsTab();
+}
+async function patchPet(pet,fields){
+  Object.assign(pet,fields);
+  if(cloudReady()){
+    try{ await sbPatch('bt_pets',`id=eq.${enc(pet.id)}`,fields); return; }catch(e){}
+  }
+  savePetsLocal();
+}
+function openPet(id){
+  curPet=pets.find(p=>p.id===id);
+  if(!curPet) return;
+  renderPet(); showScreen('scr-pet');
+}
+function petMood(p){
+  const fed=p.fed_at ? Date.now()-new Date(p.fed_at).getTime() : Infinity;
+  if(fed< 4*3600e3) return 'Full and happy 😊';
+  if(fed<12*3600e3) return 'Doing great 🙂';
+  if(fed<24*3600e3) return 'Getting hungry 😯';
+  return 'Very hungry! 🍽️';
+}
+function renderPet(){
+  const p=curPet, def=PETS[p.type];
+  $('#pet-name').textContent=p.name;
+  $('#pet-mood').textContent=petMood(p);
+  const st=$('#pet-stage');
+  st.innerHTML=`<span class="pet" onclick="petPet()">${def.emoji}</span>`;
+  (p.equipped||[]).forEach(id=>{
+    const a=def.acc.find(x=>x.id===id); if(!a) return;
+    const s=document.createElement('span'); s.className='acc '+a.slot; s.textContent=a.e;
+    st.appendChild(s);
+  });
+  const w=$('#pet-acc'); w.innerHTML='';
+  def.acc.forEach(a=>{
+    const own=(p.accessories||[]).includes(a.id);
+    const eq=(p.equipped||[]).includes(a.id);
+    const d=document.createElement('div'); d.className='row';
+    d.innerHTML=`<div class="av" style="background:var(--panel)">${a.e}</div>
+      <div class="who"><div class="nm">${a.n}</div><div class="sub">${own?(eq?'Equipped':'In the toybox'):'🪙 '+ACC_PRICE.toLocaleString()}</div></div>
+      <button class="chip-btn ${eq?'on':''}">${own?(eq?'Take off':'Put on'):'Buy'}</button>`;
+    d.querySelector('button').onclick=async ev=>{
+      ev.stopPropagation();
+      if(!own){ await buyAccessory(a); return; }
+      const equipped=eq ? (p.equipped||[]).filter(x=>x!==a.id) : [...(p.equipped||[]),a.id];
+      await patchPet(p,{equipped}); renderPet();
+    };
+    w.appendChild(d);
+  });
+}
+async function buyAccessory(a){
+  if((profile.coins||0)<ACC_PRICE){ toast('Not enough coins — accessories are 5,000 🪙'); return; }
+  if(!await modal(`Buy ${a.e} ${a.n} for ${ACC_PRICE.toLocaleString()} coins?`,{okLabel:'Buy'})) return;
+  await patchProfile({ coins:(profile.coins||0)-ACC_PRICE });
+  await patchPet(curPet,{ accessories:[...(curPet.accessories||[]),a.id], equipped:[...(curPet.equipped||[]),a.id] });
+  sfx('win'); renderPet();
+}
+function petFloat(e){
+  const st=$('#pet-stage');
+  const s=document.createElement('span'); s.className='petfloat'; s.textContent=e;
+  s.style.left=(28+Math.random()*44)+'%';
+  s.style.top=(18+Math.random()*34)+'%';
+  st.appendChild(s); setTimeout(()=>s.remove(),1250);
+}
+async function feedPet(){
+  petFloat(['🍖','🥕','🐟','🍪'][Math.floor(Math.random()*4)]); petFloat('😋'); sfx('good');
+  await patchPet(curPet,{fed_at:new Date().toISOString()});
+  $('#pet-mood').textContent=petMood(curPet);
+}
+async function petPet(){
+  petFloat('❤️'); petFloat('💕'); sfx('good');
+  await patchPet(curPet,{pet_at:new Date().toISOString()});
+}
+async function renamePet(){
+  const name=await modal('Rename your pet',{input:true,placeholder:curPet.name,okLabel:'Save'});
+  if(!name) return;
+  await patchPet(curPet,{name}); renderPet();
+}
+
+/* ================= EDIT PROFILE ================= */
+let editTarget=null, editReturn='scr-home', epColor=null, epAnimal=null;
+function openEdit(p,ret){
+  if(!p) return;
+  editTarget=p; editReturn=ret; epColor=p.color; epAnimal=p.animal;
+  $('#ep-name').value=p.name;
+  const cw=$('#ep-colors'); cw.innerHTML='';
+  COLORS.forEach(c=>{
+    const s=document.createElement('div'); s.className='swatch'+(c===epColor?' on':''); s.style.background=c;
+    s.onclick=()=>{ epColor=c; cw.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on')); s.classList.add('on'); };
+    cw.appendChild(s);
+  });
+  const aw=$('#ep-animals'); aw.innerHTML='';
+  const options=[...ANIMALS, ...(p.unlocked||[]).filter(e=>!BASE_SET.has(stripVS(e)))];
+  options.forEach(a=>{
+    const s=document.createElement('div'); s.className='animal'+(stripVS(a)===stripVS(epAnimal)?' on':''); s.textContent=a;
+    s.onclick=()=>{ epAnimal=a; aw.querySelectorAll('.animal').forEach(x=>x.classList.remove('on')); s.classList.add('on'); };
+    aw.appendChild(s);
+  });
+  showScreen('scr-edit');
+}
+function cancelEdit(){
+  if(editReturn==='scr-profiles') showScreen('scr-profiles'); else goHome();
+}
+async function saveProfileEdits(){
+  const name=$('#ep-name').value.trim();
+  if(!name){ toast('Name can\'t be empty'); return; }
+  const fields={ name, color:epColor, animal:epAnimal };
+  if(profile && editTarget.id===profile.id){
+    await patchProfile(fields);
+  } else {
+    Object.assign(editTarget,fields);
+    if(cloudReady()){
+      try{ await sbPatch('bt_profiles',`id=eq.${enc(editTarget.id)}`,fields); }
+      catch(e){ toast('Cloud sync failed'); }
+    } else saveLocalProfileEdit(editTarget);
+  }
+  toast('Profile updated');
+  if(editReturn==='scr-profiles'){ await loadProfiles(); showScreen('scr-profiles'); }
+  else goHome();
 }
 
 /* ================= SETTINGS ================= */
