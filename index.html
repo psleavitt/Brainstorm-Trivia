@@ -226,6 +226,7 @@ button.answer:disabled{opacity:.92}
   <div class="card">
     <p class="hint">Scoring: 100 points per correct answer, plus up to 100 more for speed.
     Streaks add up to +25%. Difficulty multiplies everything — easy ×1, medium ×1.5, hard ×2.</p>
+    <p class="hint" style="margin-top:8px">Questions from The Trivia API</p>
   </div>
 </section>
 
@@ -345,11 +346,11 @@ const Q_TIME = 30000, REVEAL_MS = 4500, N_QUESTIONS = 15;
 const DIFF_MULT = { easy:1, medium:1.5, hard:2 };
 const DIFF_LABEL = { easy:'Easy', medium:'Medium', hard:'Hard' };
 const CATS = {
-  general:  { id:null, label:'🌟 General'   },
-  geography:{ id:22,   label:'🌍 Geography' },
-  art:      { id:25,   label:'🎨 Art'       },
-  sports:   { id:21,   label:'🏈 Sports'    },
-  history:  { id:23,   label:'🏛️ History'  }
+  general:  { slug:null,                  label:'🌟 General'   },
+  geography:{ slug:'geography',           label:'🌍 Geography' },
+  art:      { slug:'arts_and_literature', label:'🎨 Art'       },
+  sports:   { slug:'sport_and_leisure',   label:'🏈 Sports'    },
+  history:  { slug:'history',             label:'🏛️ History'  }
 };
 const COLORS = ['#FF5470','#FF8C42','#FFC93C','#9DE04A','#2DD881','#27C4C1',
                 '#4EA8FF','#7A6CFF','#C86BFF','#FF6BD6','#A9713D','#96A6C8'];
@@ -437,7 +438,9 @@ async function sbPatch(table,q,patch){
 }
 
 /* ================= STATE ================= */
-let sync = localStorage.getItem('bt_sync') || '';
+const DEFAULT_SYNC = 'Leavitt'; // fresh/wiped devices use this automatically
+let sync = localStorage.getItem('bt_sync') || DEFAULT_SYNC;
+if(sync && !localStorage.getItem('bt_sync')) localStorage.setItem('bt_sync',sync);
 let profile = null;          // {id,name,color,animal}
 let profiles = [];
 let setupMode = 'solo';
@@ -520,27 +523,22 @@ function goHome(){
   showScreen('scr-home');
 }
 
-/* ================= OPEN TRIVIA DB ================= */
+/* ================= THE TRIVIA API ================= */
 async function fetchQuestions(cat,diff){
-  let amount=N_QUESTIONS;
-  for(let attempt=0; attempt<2; attempt++){
-    const p=new URLSearchParams({ amount:String(amount), type:'multiple', encode:'url3986', difficulty:diff });
-    if(CATS[cat].id) p.set('category', String(CATS[cat].id));
-    const r=await fetch('https://opentdb.com/api.php?'+p.toString());
-    if(r.status===429) throw new Error('rate');
-    const j=await r.json();
-    if(j.response_code===0) return j.results.map(normalizeQ);
-    if(j.response_code===1 && attempt===0){ amount=10; continue; }
-    if(j.response_code===5) throw new Error('rate');
-    throw new Error('otdb');
-  }
-  throw new Error('otdb');
+  const p=new URLSearchParams({ limit:String(N_QUESTIONS), difficulties:diff, types:'text_choice' });
+  if(CATS[cat].slug) p.set('categories', CATS[cat].slug);
+  const r=await fetch('https://the-trivia-api.com/v2/questions?'+p.toString());
+  if(r.status===429) throw new Error('rate');
+  if(!r.ok) throw new Error('otdb');
+  const j=await r.json();
+  if(!Array.isArray(j) || !j.length) throw new Error('otdb');
+  return j.map(normalizeQ);
 }
 function normalizeQ(r){
-  const d=decodeURIComponent;
-  const correct=d(r.correct_answer);
-  const all=shuffle([ ...r.incorrect_answers.map(d), correct ]);
-  return { q:d(r.question), answers:all, correct:all.indexOf(correct), cat:d(r.category) };
+  const correct=r.correctAnswer;
+  const all=shuffle([ ...r.incorrectAnswers, correct ]);
+  const catLabel=String(r.category||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  return { q:r.question.text, answers:all, correct:all.indexOf(correct), cat:catLabel };
 }
 function questionError(e){
   toast(e.message==='rate'
@@ -1025,6 +1023,7 @@ function refreshSettings(){
 
 /* ================= INIT ================= */
 (async function init(){
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   refreshSettings();
   await loadProfiles();
   const savedId=localStorage.getItem('bt_profile_id');
