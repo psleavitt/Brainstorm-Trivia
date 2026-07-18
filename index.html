@@ -187,6 +187,85 @@ button.answer:disabled{opacity:.92}
   display:flex;align-items:center;justify-content:center;flex:none}
 .accicon svg{width:34px;height:34px}
 .petfloat{position:absolute;font-size:1.7rem;animation:floatup 1.2s ease forwards;pointer-events:none}
+/* pet animation rig — scoped to the stage so thumbnails stay still */
+.petstage .pr,.petstage .p-head,.petstage .p-tail,.petstage .p-body,
+.petstage .p-earL,.petstage .p-earR,.petstage .eyes-open,.petstage .eyes-happy,
+.petstage .pt-treat,.petstage .pt-hand{transform-box:fill-box}
+.petstage .pr{transform-origin:50% 100%}
+.petstage .p-head{transform-origin:50% 85%;animation:pt-bob 3.4s ease-in-out infinite}
+.petstage .p-body{transform-origin:50% 100%;animation:pt-breathe 3.4s ease-in-out infinite}
+.petstage .p-tail{transform-origin:15% 85%;animation:pt-sway 3.4s ease-in-out infinite}
+.petstage .p-earL{transform-origin:50% 92%}
+.petstage .p-earR{transform-origin:50% 92%}
+.petstage.pet-bunny-stage .p-earR{animation:pt-eartwitch 7s ease-in-out infinite}
+@keyframes pt-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
+@keyframes pt-bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2.5px) rotate(-1.2deg)}}
+@keyframes pt-sway{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg)}}
+@keyframes pt-eartwitch{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-9deg)}96%{transform:rotate(3deg)}}
+/* blinking */
+.petstage .eyes-open{animation:pt-blinkhide 5.2s linear infinite}
+.petstage .eyes-happy{opacity:0;animation:pt-blinkshow 5.2s linear infinite}
+@keyframes pt-blinkhide{0%,92%{opacity:1}93%,96%{opacity:0}97%,100%{opacity:1}}
+@keyframes pt-blinkshow{0%,92%{opacity:0}93%,96%{opacity:1}97%,100%{opacity:0}}
+.petstage.st-happy .eyes-open{animation:none;opacity:0}
+.petstage.st-happy .eyes-happy{animation:none;opacity:1}
+/* feeding */
+.petstage.st-eat .p-head{animation:pt-chomp .45s ease-in-out 4}
+@keyframes pt-chomp{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(7px) rotate(-5deg)}}
+.petstage .pt-treat{transform-origin:50% 50%;animation:pt-treat 2s ease-in forwards}
+@keyframes pt-treat{0%{transform:translateY(-130px) scale(1);opacity:0}
+  12%{transform:translateY(0) scale(1);opacity:1}
+  38%{transform:scale(.8)}56%{transform:scale(.55)}74%{transform:scale(.32)}
+  90%{transform:scale(.14);opacity:1}100%{transform:scale(0);opacity:0}}
+/* petting */
+.petstage.st-pet .p-head{animation:pt-nuzzle .8s ease-in-out 3}
+@keyframes pt-nuzzle{0%,100%{transform:rotate(0)}30%{transform:rotate(7deg) translateY(-2px)}70%{transform:rotate(-4deg)}}
+.petstage .pt-hand{transform-origin:50% 50%;animation:pt-hand 2.4s ease-in-out forwards}
+@keyframes pt-hand{0%{opacity:0;transform:translate(0,-34px)}10%{opacity:1;transform:translate(0,0)}
+  25%{transform:translate(-26px,7px) rotate(-12deg)}45%{transform:translate(22px,-4px) rotate(10deg)}
+  65%{transform:translate(-22px,7px) rotate(-12deg)}85%{transform:translate(18px,-2px) rotate(8deg);opacity:1}
+  100%{opacity:0;transform:translate(0,-26px)}}
+/* signature: cat pounce */
+.petstage.st-cat-play .pr{animation:pt-pounce 1.7s cubic-bezier(.36,.07,.19,.97)}
+@keyframes pt-pounce{0%{transform:none}
+  16%{transform:translateY(9px) scale(1.06,.82) rotate(-1.5deg)}
+  24%{transform:translateY(9px) scale(1.06,.82) rotate(1.5deg)}
+  32%{transform:translateY(9px) scale(1.06,.82) rotate(-1.5deg)}
+  42%{transform:translateY(9px) scale(1.06,.82)}
+  58%{transform:translateY(-54px) scale(.94,1.1)}
+  72%{transform:translateY(0) scale(1.05,.9)}
+  84%{transform:scale(.98,1.03)}100%{transform:none}}
+.petstage.st-cat-play .p-tail{animation:pt-bigswish .4s ease-in-out 4}
+@keyframes pt-bigswish{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(16deg)}}
+/* signature: dog zoomies */
+.petstage.st-dog-play .pr{animation:pt-zoom 2.3s ease-in-out}
+@keyframes pt-zoom{0%{transform:translateX(0)}
+  12%{transform:translateX(-58px) scaleX(1)}14%{transform:translateX(-58px) scaleX(-1)}
+  38%{transform:translateX(52px) scaleX(-1)}40%{transform:translateX(52px) scaleX(1)}
+  62%{transform:translateX(-40px) scaleX(1)}64%{transform:translateX(-40px) scaleX(-1)}
+  84%{transform:translateX(26px) scaleX(-1)}86%{transform:translateX(26px) scaleX(1)}
+  100%{transform:translateX(0)}}
+.petstage.st-dog-play .p-tail{animation:pt-fastwag .18s linear infinite}
+@keyframes pt-fastwag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(14deg)}}
+.petstage.st-dog-play .p-earL{animation:pt-flapL .3s ease-in-out infinite}
+.petstage.st-dog-play .p-earR{animation:pt-flapR .3s ease-in-out infinite}
+@keyframes pt-flapL{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
+@keyframes pt-flapR{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
+/* signature: bunny binky */
+.petstage.st-bun-play .pr{animation:pt-binky 1.8s cubic-bezier(.36,.07,.19,.97)}
+@keyframes pt-binky{0%{transform:none}
+  14%{transform:translateY(7px) scale(1.05,.86)}
+  34%{transform:translateY(-64px) rotate(12deg) scale(.96,1.06)}
+  44%{transform:translateY(-58px) rotate(-8deg)}
+  58%{transform:translateY(0) scale(1.06,.9)}
+  68%{transform:translateY(4px) scale(1.08,.86)}
+  82%{transform:translateY(-28px) rotate(5deg)}
+  92%{transform:translateY(0) scale(1.04,.94)}100%{transform:none}}
+.petstage.st-bun-play .p-earL{animation:pt-earwildL .35s ease-in-out infinite}
+.petstage.st-bun-play .p-earR{animation:pt-earwildR .35s ease-in-out infinite}
+@keyframes pt-earwildL{0%,100%{transform:rotate(0)}50%{transform:rotate(-13deg)}}
+@keyframes pt-earwildR{0%,100%{transform:rotate(0)}50%{transform:rotate(13deg)}}
+.btn.small{font-size:.98rem;padding:13px 6px;letter-spacing:.3px}
 .modal-ov{position:fixed;inset:0;background:rgba(4,8,25,.72);display:flex;align-items:center;
   justify-content:center;z-index:70;padding:20px}
 .modal-card{background:var(--stage);border:1px solid var(--line);border-radius:18px;padding:20px;
@@ -412,8 +491,9 @@ button.answer:disabled{opacity:.92}
   <p class="hint" id="pet-mood"></p>
   <div class="petstage" id="pet-stage"></div>
   <div class="btnrow">
-    <button class="btn secondary" onclick="feedPet()">🍽️ Feed</button>
-    <button class="btn secondary" onclick="petPet()">🤗 Pet</button>
+    <button class="btn secondary small" onclick="feedPet()">🍽️ Feed</button>
+    <button class="btn secondary small" onclick="petPet()">🤗 Pet</button>
+    <button class="btn secondary small" id="pet-play" onclick="playPet()">✨ Play</button>
   </div>
   <div class="grouplabel">Accessories — 5,000 🪙 each</div>
   <div class="list" id="pet-acc"></div>
@@ -1156,12 +1236,15 @@ const SHOP_EMOJI = {"Smileys": ["😀️", "😁️", "😂️", "😃️", "�
 const PET_PRICE=5000, ACC_PRICE=5000;
 const PET_SHADOW='<ellipse cx="110" cy="187" rx="58" ry="9" fill="rgba(0,0,0,.25)"/>';
 const PET_ART={
-cat:`<g>
-<path d="M154 150 Q194 140 186 102" stroke="#D9863F" stroke-width="14" fill="none" stroke-linecap="round"/>
+cat:`<g class="pr">
+<g class="p-tail"><path d="M154 150 Q194 140 186 102" stroke="#D9863F" stroke-width="14" fill="none" stroke-linecap="round"/></g>
+<g class="p-body">
 <ellipse cx="110" cy="146" rx="50" ry="40" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
 <ellipse cx="110" cy="157" rx="26" ry="21" fill="#FFE8CC"/>
 <ellipse cx="87" cy="183" rx="13" ry="8" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
 <ellipse cx="133" cy="183" rx="13" ry="8" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
+</g>
+<g class="p-head">
 <path d="M64 60 L72 16 L100 42 Z" fill="#F5A25D" stroke="#C96F2E" stroke-width="3" stroke-linejoin="round"/>
 <path d="M156 60 L148 16 L120 42 Z" fill="#F5A25D" stroke="#C96F2E" stroke-width="3" stroke-linejoin="round"/>
 <path d="M75 43 L79 27 L91 39 Z" fill="#FFB9C8"/>
@@ -1170,55 +1253,82 @@ cat:`<g>
 <path d="M102 40 q8 -6 16 0" stroke="#D9863F" stroke-width="5" fill="none" stroke-linecap="round"/>
 <path d="M90 45 q6 -5 11 -2" stroke="#D9863F" stroke-width="4" fill="none" stroke-linecap="round"/>
 <path d="M119 43 q6 -3 11 2" stroke="#D9863F" stroke-width="4" fill="none" stroke-linecap="round"/>
+<g class="eyes-open">
 <circle cx="92" cy="78" r="6.5" fill="#33241B"/><circle cx="94.5" cy="75.5" r="2" fill="#fff"/>
 <circle cx="128" cy="78" r="6.5" fill="#33241B"/><circle cx="130.5" cy="75.5" r="2" fill="#fff"/>
+</g>
+<g class="eyes-happy">
+<path d="M85 80 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M121 80 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</g>
 <path d="M104 90 L116 90 L110 97 Z" fill="#F27E9D"/>
 <path d="M110 97 Q110 104 101 103 M110 97 Q110 104 119 103" stroke="#8A5A3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 <ellipse cx="76" cy="94" rx="7" ry="4.5" fill="#FFB9C8" opacity=".85"/>
 <ellipse cx="144" cy="94" rx="7" ry="4.5" fill="#FFB9C8" opacity=".85"/>
 <path d="M52 80 H74 M52 92 Q64 92 74 97 M168 80 H146 M168 92 Q156 92 146 97" stroke="#C96F2E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-</g>`,
-dog:`<g>
-<path d="M154 148 Q190 132 180 100" stroke="#A87947" stroke-width="14" fill="none" stroke-linecap="round"/>
+<!--HW--></g>
+<!--OV--></g>`,
+dog:`<g class="pr">
+<g class="p-tail"><path d="M154 148 Q190 132 180 100" stroke="#A87947" stroke-width="14" fill="none" stroke-linecap="round"/></g>
+<g class="p-body">
 <ellipse cx="110" cy="146" rx="50" ry="40" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
 <ellipse cx="110" cy="158" rx="25" ry="20" fill="#F2DEC3"/>
 <ellipse cx="87" cy="183" rx="13" ry="8" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
 <ellipse cx="133" cy="183" rx="13" ry="8" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
-<path d="M70 40 Q50 52 56 92 Q58 108 74 100 Q82 72 86 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/>
-<path d="M150 40 Q170 52 164 92 Q162 108 146 100 Q138 72 134 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/>
+</g>
+<g class="p-head">
+<g class="p-earL"><path d="M70 40 Q50 52 56 92 Q58 108 74 100 Q82 72 86 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/></g>
+<g class="p-earR"><path d="M150 40 Q170 52 164 92 Q162 108 146 100 Q138 72 134 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/></g>
 <circle cx="110" cy="80" r="46" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
 <ellipse cx="110" cy="97" rx="24" ry="17" fill="#F2DEC3"/>
+<g class="eyes-open">
 <circle cx="90" cy="72" r="6.5" fill="#33241B"/><circle cx="92.5" cy="69.5" r="2" fill="#fff"/>
 <circle cx="130" cy="72" r="6.5" fill="#33241B"/><circle cx="132.5" cy="69.5" r="2" fill="#fff"/>
+</g>
+<g class="eyes-happy">
+<path d="M83 74 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M123 74 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</g>
 <ellipse cx="110" cy="88" rx="9.5" ry="7.5" fill="#33241B"/>
 <circle cx="113" cy="85.5" r="2.2" fill="#fff"/>
 <path d="M110 95 Q110 102 102 101 M110 95 Q110 102 118 101" stroke="#8A5A3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 <path d="M104 102 Q110 115 116 102 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="1.5" stroke-linejoin="round"/>
 <ellipse cx="76" cy="88" rx="7" ry="4.5" fill="#F5A8B8" opacity=".7"/>
 <ellipse cx="144" cy="88" rx="7" ry="4.5" fill="#F5A8B8" opacity=".7"/>
-</g>`,
-bunny:`<g>
-<ellipse cx="88" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(-10 88 30)"/>
-<ellipse cx="88" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(-10 88 34)"/>
-<ellipse cx="132" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(10 132 30)"/>
-<ellipse cx="132" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(10 132 34)"/>
+<!--HW--></g>
+<!--OV--></g>`,
+bunny:`<g class="pr">
+<g class="p-body">
 <ellipse cx="110" cy="148" rx="48" ry="38" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
 <ellipse cx="88" cy="182" rx="14" ry="8" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
 <ellipse cx="132" cy="182" rx="14" ry="8" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+</g>
+<g class="p-head">
+<g class="p-earL"><ellipse cx="88" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(-10 88 30)"/>
+<ellipse cx="88" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(-10 88 34)"/></g>
+<g class="p-earR"><ellipse cx="132" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(10 132 30)"/>
+<ellipse cx="132" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(10 132 34)"/></g>
 <circle cx="110" cy="82" r="45" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+<g class="eyes-open">
 <circle cx="92" cy="80" r="6" fill="#33241B"/><circle cx="94.5" cy="77.5" r="2" fill="#fff"/>
 <circle cx="128" cy="80" r="6" fill="#33241B"/><circle cx="130.5" cy="77.5" r="2" fill="#fff"/>
+</g>
+<g class="eyes-happy">
+<path d="M85 82 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M121 82 q7 -8 14 0" stroke="#33241B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+</g>
 <path d="M105 90 L115 90 L110 96 Z" fill="#F58BAB"/>
 <path d="M110 96 Q110 102 103 101 M110 96 Q110 102 117 101" stroke="#B98BA4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 <rect x="103.5" y="100" width="6" height="8" rx="2" fill="#fff" stroke="#BCA9CE" stroke-width="1.5"/>
 <rect x="110.5" y="100" width="6" height="8" rx="2" fill="#fff" stroke="#BCA9CE" stroke-width="1.5"/>
 <ellipse cx="78" cy="94" rx="7" ry="4.5" fill="#FFC2D4" opacity=".9"/>
 <ellipse cx="142" cy="94" rx="7" ry="4.5" fill="#FFC2D4" opacity=".9"/>
-</g>`
+<!--HW--></g>
+<!--OV--></g>`
 };
 const PETS={
   cat:{ label:'Cat', acc:[
-    {id:'hat', n:'Top Hat', wear:true, layer:'wear', iconBox:'62 -4 96 56', svg:`<g transform="rotate(-8 110 34)">
+    {id:'hat', n:'Top Hat', wear:true, layer:'wear', attach:'head', iconBox:'62 -4 96 56', svg:`<g transform="rotate(-8 110 34)">
       <ellipse cx="110" cy="38" rx="36" ry="9" fill="#1B2757" stroke="#0D1435" stroke-width="3"/>
       <rect x="88" y="4" width="44" height="36" rx="6" fill="#1B2757" stroke="#0D1435" stroke-width="3"/>
       <rect x="90" y="28" width="40" height="9" fill="#FFC93C"/></g>`},
@@ -1239,7 +1349,7 @@ const PETS={
       <path d="M190 172 L203 163 L203 181 Z" fill="#4EA8FF" stroke="#2F7BC4" stroke-width="3" stroke-linejoin="round"/>
       <circle cx="170" cy="169" r="2.2" fill="#0D1435"/></g>`} ]},
   dog:{ label:'Dog', acc:[
-    {id:'shades', n:'Sunglasses', wear:true, layer:'wear', iconBox:'58 56 104 32', svg:`<g>
+    {id:'shades', n:'Sunglasses', wear:true, layer:'wear', attach:'head', iconBox:'58 56 104 32', svg:`<g>
       <rect x="76" y="63" width="28" height="18" rx="7" fill="#22243A" stroke="#0D1435" stroke-width="3"/>
       <rect x="116" y="63" width="28" height="18" rx="7" fill="#22243A" stroke="#0D1435" stroke-width="3"/>
       <path d="M104 70 H116 M76 70 Q68 68 64 74 M144 70 Q152 68 156 74" stroke="#0D1435" stroke-width="3" fill="none"/>
@@ -1261,7 +1371,7 @@ const PETS={
       <circle cx="102" cy="122" r="2.5" fill="#fff"/><circle cx="120" cy="122" r="2.5" fill="#fff"/>
       <circle cx="111" cy="134" r="2.5" fill="#fff"/></g>`} ]},
   bunny:{ label:'Bunny', acc:[
-    {id:'crown', n:'Flower Crown', wear:true, layer:'wear', iconBox:'70 26 80 34', svg:`<g>
+    {id:'crown', n:'Flower Crown', wear:true, layer:'wear', attach:'head', iconBox:'70 26 80 34', svg:`<g>
       <path d="M80 50 Q110 34 140 50" stroke="#2DD881" stroke-width="4" fill="none" stroke-linecap="round"/>
       <g transform="translate(86 46)"><circle r="6" cy="-6" fill="#FF8FB3"/><circle r="6" cx="5.7" cy="-1.9" fill="#FF8FB3"/><circle r="6" cx="3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-5.7" cy="-1.9" fill="#FF8FB3"/><circle r="4" fill="#FFC93C" stroke="#D9A21B" stroke-width="1.5"/></g>
       <g transform="translate(110 40)"><circle r="6" cy="-6" fill="#C86BFF"/><circle r="6" cx="5.7" cy="-1.9" fill="#C86BFF"/><circle r="6" cx="3.5" cy="4.9" fill="#C86BFF"/><circle r="6" cx="-3.5" cy="4.9" fill="#C86BFF"/><circle r="6" cx="-5.7" cy="-1.9" fill="#C86BFF"/><circle r="4" fill="#FFC93C" stroke="#D9A21B" stroke-width="1.5"/></g>
@@ -1269,7 +1379,7 @@ const PETS={
     {id:'carrot', n:'Carrot', wear:false, layer:'front', iconBox:'152 126 52 70', svg:`<g transform="rotate(16 178 168)">
       <path d="M170 152 L186 152 L178 190 Z" fill="#FF8C42" stroke="#D96A24" stroke-width="3" stroke-linejoin="round"/>
       <path d="M173 150 q-6 -10 -2 -14 M178 150 q0 -12 4 -16 M183 150 q6 -8 4 -14" stroke="#2DD881" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>`},
-    {id:'bow', n:'Ear Bow', wear:true, layer:'wear', iconBox:'110 32 52 32', svg:`<g transform="rotate(12 134 46)">
+    {id:'bow', n:'Ear Bow', wear:true, layer:'wear', attach:'head', iconBox:'110 32 52 32', svg:`<g transform="rotate(12 134 46)">
       <path d="M134 46 L114 36 L114 56 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
       <path d="M134 46 L154 36 L154 56 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
       <circle cx="134" cy="46" r="6.5" fill="#FFB9C8" stroke="#C4547A" stroke-width="3"/></g>`},
@@ -1284,13 +1394,17 @@ const PETS={
 };
 function petSVG(type,equipped,size){
   const def=PETS[type], eq=new Set(equipped||[]);
-  const back=[],wear=[],front=[];
+  const back=[],hw=[],ov=[],front=[];
   def.acc.forEach(a=>{
     if(!eq.has(a.id)) return;
-    (a.layer==='back'?back:a.layer==='front'?front:wear).push(a.svg);
+    if(a.layer==='back') back.push(a.svg);
+    else if(a.layer==='front') front.push(a.svg);
+    else if(a.attach==='head') hw.push(a.svg);
+    else ov.push(a.svg);
   });
+  const art=PET_ART[type].replace('<!--HW-->',hw.join('')).replace('<!--OV-->',ov.join(''));
   const dims=size?`width="${size}" height="${Math.round(size*200/220)}"`:'';
-  return `<svg viewBox="0 0 220 200" ${dims} xmlns="http://www.w3.org/2000/svg">${PET_SHADOW}${back.join('')}${PET_ART[type]}${wear.join('')}${front.join('')}</svg>`;
+  return `<svg viewBox="0 0 220 200" ${dims} class="pet-${type}" xmlns="http://www.w3.org/2000/svg">${PET_SHADOW}${back.join('')}${art}${front.join('')}</svg>`;
 }
 function accIconSVG(a){
   return `<svg viewBox="${a.iconBox}" xmlns="http://www.w3.org/2000/svg">${a.svg}</svg>`;
@@ -1451,8 +1565,10 @@ function renderPet(){
   $('#pet-name').textContent=p.name;
   $('#pet-mood').textContent=petMood(p);
   const st=$('#pet-stage');
+  st.className='petstage pet-'+p.type+'-stage';
   st.innerHTML=petSVG(p.type,p.equipped);
   st.onclick=()=>petPet();
+  $('#pet-play').textContent={cat:'😼 Pounce',dog:'⚡ Zoomies',bunny:'✨ Binky'}[p.type];
   const w=$('#pet-acc'); w.innerHTML='';
   def.acc.forEach(a=>{
     const own=(p.accessories||[]).includes(a.id);
@@ -1487,14 +1603,58 @@ function petFloat(e){
   s.style.top=(18+Math.random()*34)+'%';
   st.appendChild(s); setTimeout(()=>s.remove(),1250);
 }
+let petBusy=false;
+const TREATS={ cat:{acc:'fish',dx:-73,dy:-22}, dog:{acc:'bone',dx:-67,dy:-22}, bunny:{acc:'carrot',dx:-68,dy:-20} };
+const HAND_PATH=`<path d="M-14 8 Q-16 -6 -8 -8 Q-7 -14 -1 -13 Q1 -18 7 -16 Q10 -19 14 -15 Q20 -12 18 0 Q16 12 4 14 Q-8 16 -14 8 Z" fill="#FFD9B8" stroke="#E0AF87" stroke-width="2.5"/>`;
+function stageAddSVG(inner){
+  const svg=$('#pet-stage').querySelector('svg');
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.innerHTML=inner;
+  svg.appendChild(g);
+  return g;
+}
 async function feedPet(){
-  petFloat(['🍖','🥕','🐟','🍪'][Math.floor(Math.random()*4)]); petFloat('😋'); sfx('good');
+  if(petBusy || !curPet) return; petBusy=true;
+  const st=$('#pet-stage');
+  const t=TREATS[curPet.type];
+  const treatSvg=PETS[curPet.type].acc.find(a=>a.id===t.acc).svg;
+  const g=stageAddSVG(`<g transform="translate(${t.dx} ${t.dy})"><g class="pt-treat">${treatSvg}</g></g>`);
+  st.classList.add('st-eat','st-happy');
+  sfx('chomp');
+  setTimeout(()=>sfx('chomp'),480);
+  setTimeout(()=>sfx('chomp'),960);
+  setTimeout(()=>{ petFloat('✨'); petFloat('😋'); },1500);
+  setTimeout(()=>petFloat('✨'),1900);
   await patchPet(curPet,{fed_at:new Date().toISOString()});
-  $('#pet-mood').textContent=petMood(curPet);
+  setTimeout(()=>{
+    g.remove(); st.classList.remove('st-eat','st-happy');
+    $('#pet-mood').textContent=petMood(curPet);
+    petBusy=false;
+  },2450);
 }
 async function petPet(){
-  petFloat('❤️'); petFloat('💕'); sfx('good');
+  if(petBusy || !curPet) return; petBusy=true;
+  const st=$('#pet-stage');
+  const g=stageAddSVG(`<g transform="translate(110 28)"><g class="pt-hand">${HAND_PATH}</g></g>`);
+  st.classList.add('st-pet','st-happy');
+  sfx('good');
+  ['❤️','💕','💖','✨'].forEach((e,i)=>setTimeout(()=>petFloat(e),350+i*480));
   await patchPet(curPet,{pet_at:new Date().toISOString()});
+  setTimeout(()=>{
+    g.remove(); st.classList.remove('st-pet','st-happy');
+    petBusy=false;
+  },2550);
+}
+async function playPet(){
+  if(petBusy || !curPet) return; petBusy=true;
+  const st=$('#pet-stage');
+  const cls={cat:'st-cat-play',dog:'st-dog-play',bunny:'st-bun-play'}[curPet.type];
+  const dur={cat:1700,dog:2300,bunny:1800}[curPet.type];
+  st.classList.add(cls,'st-happy');
+  sfx('boing');
+  setTimeout(()=>petFloat({cat:'⭐',dog:'💨',bunny:'✨'}[curPet.type]),500);
+  setTimeout(()=>petFloat('✨'),1100);
+  setTimeout(()=>{ st.classList.remove(cls,'st-happy'); petBusy=false; },dur+150);
 }
 async function renamePet(){
   const name=await modal('Rename your pet',{input:true,placeholder:curPet.name,okLabel:'Save'});
