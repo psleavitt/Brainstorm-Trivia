@@ -178,15 +178,14 @@ button.answer:disabled{opacity:.92}
   border-radius:16px;padding:12px;cursor:pointer}
 .petcard .pe{font-size:2.2rem}
 .petcard .who{flex:1;min-width:0}
-.petstage{position:relative;height:220px;display:flex;align-items:center;justify-content:center;
-  background:var(--stage);border:1px solid var(--line);border-radius:18px}
-.petstage .pet{font-size:6.5rem;cursor:pointer;user-select:none}
-.petstage .acc{position:absolute;font-size:2rem}
-.acc.top{top:8px;left:50%;transform:translateX(-50%)}
-.acc.left{left:12%;top:44%}
-.acc.right{right:12%;top:44%}
-.acc.bl{left:18%;bottom:10px}
-.acc.br{right:18%;bottom:10px}
+.petstage{position:relative;height:250px;display:flex;align-items:center;justify-content:center;
+  background:var(--stage);border:1px solid var(--line);border-radius:18px;cursor:pointer;overflow:hidden}
+.petstage svg{height:94%;display:block}
+.petcard .pe{width:52px;height:48px;display:flex;align-items:center;justify-content:center;flex:none}
+.petcard .pe svg{width:100%;height:100%}
+.accicon{width:42px;height:42px;border-radius:12px;background:var(--stage);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex:none}
+.accicon svg{width:34px;height:34px}
 .petfloat{position:absolute;font-size:1.7rem;animation:floatup 1.2s ease forwards;pointer-events:none}
 .modal-ov{position:fixed;inset:0;background:rgba(4,8,25,.72);display:flex;align-items:center;
   justify-content:center;z-index:70;padding:20px}
@@ -1155,26 +1154,147 @@ async function openStandings(){
 /* ================= STORE: COINS & EMOJI ================= */
 const SHOP_EMOJI = {"Smileys": ["😀️", "😁️", "😂️", "😃️", "😄️", "😅️", "😆️", "😇️", "😈️", "😉️", "😊️", "😋️", "😌️", "😍️", "😎️", "😏️", "😐️", "😑️", "😒️", "😓️", "😔️", "😕️", "😖️", "😗️", "😘️", "😙️", "😚️", "😛️", "😜️", "😝️", "😞️", "😟️", "😠️", "😡️", "😢️", "😣️", "😤️", "😥️", "😦️", "😧️", "😨️", "😩️", "😪️", "😫️", "😬️", "😭️", "😮️", "😯️", "😰️", "😱️", "😲️", "😳️", "😴️", "😵️", "😶️", "😷️", "😸️", "😹️", "😺️", "😻️", "😼️", "😽️", "😾️", "😿️", "🙀️", "🙁️", "🙂️", "🙃️", "🙄️", "🙅️", "🙆️", "🙇️", "🙈️", "🙉️", "🙊️", "🙋️", "🙌️", "🙍️", "🙎️", "🙏️", "🤐️", "🤑️", "🤒️", "🤓️", "🤔️", "🤕️", "🤗️", "🤘️", "🤙️", "🤚️", "🤛️", "🤜️", "🤝️", "🤞️", "🤟️", "🤠️", "🤡️", "🤢️", "🤣️", "🤤️", "🤥️", "🤦️", "🤧️", "🤨️", "🤩️", "🤪️", "🤫️", "🤬️", "🤭️", "🤮️", "🤯️", "🥰️", "🥱️", "🥲️", "🥳️", "🥴️", "🥵️", "🥶️", "🥸️", "🥹️", "🥺️", "🧐️", "🫠️", "🫡️", "🫢️", "🫣️", "🫤️", "🫥️", "🫦️", "🫧️", "🫨️"], "Hearts": ["💓️", "💔️", "💕️", "💖️", "💗️", "💘️", "💙️", "💚️", "💛️", "💜️", "💝️", "💞️", "💟️", "🖤️", "🤍️", "🤎️", "🤏️", "🩵️", "🩶️", "🩷️"], "People": ["👆️", "👇️", "👈️", "👉️", "👊️", "👋️", "👌️", "👍️", "👎️", "👏️", "👐️", "👦️", "👧️", "👨️", "👩️", "👪️", "👫️", "👬️", "👭️", "👮️", "👯️", "👰️", "👱️", "👲️", "👳️", "👴️", "👵️", "👶️", "👷️", "👸️", "👻️", "👼️", "👽️", "👾️", "👿️", "💀️", "💁️", "💂️", "💃️", "🤰️", "🤱️", "🤲️", "🤳️", "🤴️", "🤵️", "🤶️", "🤷️", "🤸️", "🤹️", "🤺️", "🤻️", "🤼️", "🤽️", "🦴️", "🦵️", "🦶️", "🦷️", "🦸️", "🦹️", "🦺️", "🦻️", "🦼️", "🦽️", "🦾️", "🦿️", "🫰️", "🫱️", "🫲️", "🫳️", "🫴️", "🫵️", "🫶️", "🫷️", "🫸️"], "Animals": ["🐀️", "🐁️", "🐂️", "🐃️", "🐄️", "🐅️", "🐆️", "🐇️", "🐈️", "🐉️", "🐊️", "🐋️", "🐌️", "🐍️", "🐎️", "🐏️", "🐐️", "🐑️", "🐒️", "🐓️", "🐔️", "🐕️", "🐖️", "🐗️", "🐘️", "🐙️", "🐚️", "🐛️", "🐜️", "🐝️", "🐞️", "🐟️", "🐠️", "🐡️", "🐢️", "🐣️", "🐤️", "🐥️", "🐦️", "🐧️", "🐨️", "🐩️", "🐪️", "🐫️", "🐬️", "🐭️", "🐮️", "🐯️", "🐰️", "🐱️", "🐲️", "🐳️", "🐴️", "🐵️", "🐶️", "🐷️", "🐸️", "🐹️", "🐺️", "🐻️", "🐼️", "🐽️", "🐾️", "🐿️", "🦀️", "🦁️", "🦂️", "🦃️", "🦄️", "🦅️", "🦆️", "🦇️", "🦈️", "🦉️", "🦊️", "🦋️", "🦌️", "🦍️", "🦎️", "🦏️", "🦐️", "🦑️", "🦒️", "🦓️", "🦔️", "🦕️", "🦖️", "🦗️", "🦘️", "🦙️", "🦚️", "🦛️", "🦜️", "🦝️", "🦞️", "🦟️", "🦠️", "🦡️", "🦢️", "🦣️", "🦤️", "🦥️", "🦦️", "🦧️", "🦨️", "🦩️", "🦪️", "🦫️", "🦬️", "🦭️", "🦮️", "🪰️", "🪱️", "🪲️", "🪳️", "🪴️", "🪵️", "🪶️", "🪷️", "🪸️", "🪹️", "🪺️", "🪻️", "🪼️", "🪽️"], "Nature": ["🌀️", "🌁️", "🌂️", "🌃️", "🌄️", "🌅️", "🌆️", "🌇️", "🌈️", "🌉️", "🌊️", "🌋️", "🌌️", "🌍️", "🌎️", "🌏️", "🌐️", "🌑️", "🌒️", "🌓️", "🌔️", "🌕️", "🌖️", "🌗️", "🌘️", "🌙️", "🌚️", "🌛️", "🌜️", "🌝️", "🌞️", "🌟️", "🌠️", "🌡️", "🌢️", "🌣️", "🌤️", "🌥️", "🌦️", "🌧️", "🌨️", "🌩️", "🌪️", "🌫️", "🌬️", "🌱️", "🌲️", "🌳️", "🌴️", "🌵️", "🌶️", "🌷️", "🌸️", "🌹️", "🌺️", "🌻️", "🌼️", "🌽️", "🌾️", "🌿️", "🍀️", "🍁️", "🍂️", "🍃️", "🍄️"], "Food": ["🌭️", "🌮️", "🌯️", "🌰️", "🍅️", "🍆️", "🍇️", "🍈️", "🍉️", "🍊️", "🍋️", "🍌️", "🍍️", "🍎️", "🍏️", "🍐️", "🍑️", "🍒️", "🍓️", "🍔️", "🍕️", "🍖️", "🍗️", "🍘️", "🍙️", "🍚️", "🍛️", "🍜️", "🍝️", "🍞️", "🍟️", "🍠️", "🍡️", "🍢️", "🍣️", "🍤️", "🍥️", "🍦️", "🍧️", "🍨️", "🍩️", "🍪️", "🍫️", "🍬️", "🍭️", "🍮️", "🍯️", "🍰️", "🍱️", "🍲️", "🍳️", "🍴️", "🍵️", "🍼️", "🍽️", "🍿️", "🥐️", "🥑️", "🥒️", "🥓️", "🥔️", "🥕️", "🥖️", "🥗️", "🥘️", "🥙️", "🥚️", "🥛️", "🥜️", "🥝️", "🥞️", "🥟️", "🥠️", "🥡️", "🥢️", "🥣️", "🥤️", "🥥️", "🥦️", "🥧️", "🥨️", "🥩️", "🥪️", "🥫️", "🥬️", "🥭️", "🥮️", "🥯️", "🧀️", "🧁️", "🧂️", "🧃️", "🧄️", "🧅️", "🧆️", "🧇️", "🧈️", "🧉️", "🧊️", "🧋️", "🫐️", "🫑️", "🫒️", "🫓️", "🫔️", "🫕️", "🫖️", "🫗️", "🫘️", "🫙️", "🫚️", "🫛️"], "Activities": ["🎀️", "🎁️", "🎂️", "🎃️", "🎄️", "🎅️", "🎆️", "🎇️", "🎈️", "🎉️", "🎊️", "🎋️", "🎌️", "🎍️", "🎎️", "🎏️", "🎐️", "🎑️", "🎒️", "🎓️", "🎠️", "🎡️", "🎢️", "🎣️", "🎤️", "🎥️", "🎦️", "🎧️", "🎨️", "🎩️", "🎪️", "🎫️", "🎬️", "🎭️", "🎮️", "🎯️", "🎰️", "🎱️", "🎲️", "🎳️", "🎴️", "🎵️", "🎶️", "🎷️", "🎸️", "🎹️", "🎺️", "🎻️", "🎼️", "🎽️", "🎾️", "🎿️", "🏀️", "🏁️", "🏂️", "🏃️", "🏄️", "🏅️", "🏆️", "🏇️", "🏈️", "🏉️", "🏊️", "🏏️", "🏐️", "🏑️", "🏒️", "🏓️", "🥅️", "🥇️", "🥈️", "🥉️", "🥊️", "🥋️", "🥌️", "🥍️", "🥎️", "🥏️"], "Travel": ["🏠️", "🏡️", "🏢️", "🏣️", "🏤️", "🏥️", "🏦️", "🏧️", "🏨️", "🏩️", "🏪️", "🏫️", "🏬️", "🏭️", "🏮️", "🏯️", "🏰️", "🚀️", "🚁️", "🚂️", "🚃️", "🚄️", "🚅️", "🚆️", "🚇️", "🚈️", "🚉️", "🚊️", "🚋️", "🚌️", "🚍️", "🚎️", "🚏️", "🚐️", "🚑️", "🚒️", "🚓️", "🚔️", "🚕️", "🚖️", "🚗️", "🚘️", "🚙️", "🚚️", "🚛️", "🚜️", "🚝️", "🚞️", "🚟️", "🚠️", "🚡️", "🚢️", "🚣️", "🚤️", "🛫️", "🛬️"], "Objects": ["💄️", "💅️", "💆️", "💇️", "💈️", "💡️", "💢️", "💣️", "💤️", "💥️", "💦️", "💧️", "💨️", "💩️", "💪️", "💫️", "💬️", "💭️", "💮️", "💯️", "💰️", "💱️", "💲️", "💳️", "💴️", "💵️", "💶️", "💷️", "💸️", "💹️", "💺️", "💻️", "💼️", "💽️", "💾️", "💿️", "📀️", "📁️", "📂️", "📃️", "📄️", "📅️", "📆️", "📇️", "📈️", "📉️", "📊️", "📋️", "📌️", "📍️", "📎️", "📏️", "📐️", "📑️", "📒️", "📓️", "📔️", "📕️", "📖️", "📗️", "📘️", "📙️", "📚️", "📛️", "📜️", "📝️", "📞️", "📟️", "📠️", "📡️", "📢️", "📣️", "📤️", "📥️", "📦️", "📧️", "📨️", "📩️", "📪️", "📫️", "📬️", "📭️", "📮️", "📯️", "📰️", "📱️", "📲️", "📳️", "📴️", "📵️", "📶️", "📷️", "📸️", "📹️", "📺️", "📻️", "📼️", "🔇️", "🔈️", "🔉️", "🔊️", "🔋️", "🔌️", "🔍️", "🔎️", "🔏️", "🔐️", "🔑️", "🔒️", "🔓️", "🔔️", "🔕️", "🔖️", "🔗️", "🔘️", "🔙️", "🔚️", "🔛️", "🔜️", "🔝️", "🔞️", "🔟️", "🔠️", "🔡️", "🔢️", "🔣️", "🔤️", "🔥️", "🔦️", "🔧️", "🔨️", "🔩️", "🔪️", "🔫️", "🔬️", "🔭️", "🔮️", "🔯️", "🧠️", "🧡️", "🧢️", "🧣️", "🧤️", "🧥️", "🧦️", "🧧️", "🧨️", "🧩️", "🧪️", "🧫️", "🧬️", "🧭️", "🧮️", "🧯️", "🧰️", "🧱️", "🧲️", "🧳️", "🧴️", "🧵️", "🧶️", "🧷️", "🧸️", "🧹️", "🧺️", "🧻️", "🧼️", "🧽️", "🧾️", "🧿️", "🪀️", "🪁️", "🪂️", "🪃️", "🪄️", "🪅️", "🪆️", "🪇️", "🪈️", "🪐️", "🪑️", "🪒️", "🪓️", "🪔️", "🪕️", "🪖️", "🪗️"]};
 const PET_PRICE=5000, ACC_PRICE=5000;
-const PETS={
-  cat:{ emoji:'🐱', label:'Cat', acc:[
-    {id:'hat',   e:'🎩', n:'Top Hat',      slot:'top'},
-    {id:'bow',   e:'🎀', n:'Bow',          slot:'left'},
-    {id:'yarn',  e:'🧶', n:'Yarn Ball',    slot:'right'},
-    {id:'bed',   e:'🛏️', n:'Cozy Bed',     slot:'bl'},
-    {id:'fish',  e:'🐟', n:'Fish Treat',   slot:'br'} ]},
-  dog:{ emoji:'🐶', label:'Dog', acc:[
-    {id:'shades',e:'🕶️', n:'Sunglasses',   slot:'top'},
-    {id:'ball',  e:'🎾', n:'Tennis Ball',  slot:'left'},
-    {id:'bone',  e:'🦴', n:'Bone',         slot:'right'},
-    {id:'house', e:'🏠', n:'Doghouse',     slot:'bl'},
-    {id:'scarf', e:'🧣', n:'Bandana',      slot:'br'} ]},
-  bunny:{ emoji:'🐰', label:'Bunny', acc:[
-    {id:'crown', e:'🌼', n:'Flower Crown', slot:'top'},
-    {id:'carrot',e:'🥕', n:'Carrot',       slot:'left'},
-    {id:'bow',   e:'🎀', n:'Bow',          slot:'right'},
-    {id:'garden',e:'🌿', n:'Garden Patch', slot:'bl'},
-    {id:'scarf', e:'🧣', n:'Tiny Scarf',   slot:'br'} ]}
+const PET_SHADOW='<ellipse cx="110" cy="187" rx="58" ry="9" fill="rgba(0,0,0,.25)"/>';
+const PET_ART={
+cat:`<g>
+<path d="M154 150 Q194 140 186 102" stroke="#D9863F" stroke-width="14" fill="none" stroke-linecap="round"/>
+<ellipse cx="110" cy="146" rx="50" ry="40" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
+<ellipse cx="110" cy="157" rx="26" ry="21" fill="#FFE8CC"/>
+<ellipse cx="87" cy="183" rx="13" ry="8" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
+<ellipse cx="133" cy="183" rx="13" ry="8" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
+<path d="M64 60 L72 16 L100 42 Z" fill="#F5A25D" stroke="#C96F2E" stroke-width="3" stroke-linejoin="round"/>
+<path d="M156 60 L148 16 L120 42 Z" fill="#F5A25D" stroke="#C96F2E" stroke-width="3" stroke-linejoin="round"/>
+<path d="M75 43 L79 27 L91 39 Z" fill="#FFB9C8"/>
+<path d="M145 43 L141 27 L129 39 Z" fill="#FFB9C8"/>
+<circle cx="110" cy="80" r="46" fill="#F5A25D" stroke="#C96F2E" stroke-width="3"/>
+<path d="M102 40 q8 -6 16 0" stroke="#D9863F" stroke-width="5" fill="none" stroke-linecap="round"/>
+<path d="M90 45 q6 -5 11 -2" stroke="#D9863F" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M119 43 q6 -3 11 2" stroke="#D9863F" stroke-width="4" fill="none" stroke-linecap="round"/>
+<circle cx="92" cy="78" r="6.5" fill="#33241B"/><circle cx="94.5" cy="75.5" r="2" fill="#fff"/>
+<circle cx="128" cy="78" r="6.5" fill="#33241B"/><circle cx="130.5" cy="75.5" r="2" fill="#fff"/>
+<path d="M104 90 L116 90 L110 97 Z" fill="#F27E9D"/>
+<path d="M110 97 Q110 104 101 103 M110 97 Q110 104 119 103" stroke="#8A5A3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<ellipse cx="76" cy="94" rx="7" ry="4.5" fill="#FFB9C8" opacity=".85"/>
+<ellipse cx="144" cy="94" rx="7" ry="4.5" fill="#FFB9C8" opacity=".85"/>
+<path d="M52 80 H74 M52 92 Q64 92 74 97 M168 80 H146 M168 92 Q156 92 146 97" stroke="#C96F2E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</g>`,
+dog:`<g>
+<path d="M154 148 Q190 132 180 100" stroke="#A87947" stroke-width="14" fill="none" stroke-linecap="round"/>
+<ellipse cx="110" cy="146" rx="50" ry="40" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
+<ellipse cx="110" cy="158" rx="25" ry="20" fill="#F2DEC3"/>
+<ellipse cx="87" cy="183" rx="13" ry="8" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
+<ellipse cx="133" cy="183" rx="13" ry="8" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
+<path d="M70 40 Q50 52 56 92 Q58 108 74 100 Q82 72 86 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/>
+<path d="M150 40 Q170 52 164 92 Q162 108 146 100 Q138 72 134 48 Z" fill="#8A5E36" stroke="#6B4626" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="110" cy="80" r="46" fill="#C79A6B" stroke="#96703F" stroke-width="3"/>
+<ellipse cx="110" cy="97" rx="24" ry="17" fill="#F2DEC3"/>
+<circle cx="90" cy="72" r="6.5" fill="#33241B"/><circle cx="92.5" cy="69.5" r="2" fill="#fff"/>
+<circle cx="130" cy="72" r="6.5" fill="#33241B"/><circle cx="132.5" cy="69.5" r="2" fill="#fff"/>
+<ellipse cx="110" cy="88" rx="9.5" ry="7.5" fill="#33241B"/>
+<circle cx="113" cy="85.5" r="2.2" fill="#fff"/>
+<path d="M110 95 Q110 102 102 101 M110 95 Q110 102 118 101" stroke="#8A5A3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M104 102 Q110 115 116 102 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="1.5" stroke-linejoin="round"/>
+<ellipse cx="76" cy="88" rx="7" ry="4.5" fill="#F5A8B8" opacity=".7"/>
+<ellipse cx="144" cy="88" rx="7" ry="4.5" fill="#F5A8B8" opacity=".7"/>
+</g>`,
+bunny:`<g>
+<ellipse cx="88" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(-10 88 30)"/>
+<ellipse cx="88" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(-10 88 34)"/>
+<ellipse cx="132" cy="30" rx="15" ry="34" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3" transform="rotate(10 132 30)"/>
+<ellipse cx="132" cy="34" rx="7.5" ry="23" fill="#FFC2D4" transform="rotate(10 132 34)"/>
+<ellipse cx="110" cy="148" rx="48" ry="38" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+<ellipse cx="88" cy="182" rx="14" ry="8" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+<ellipse cx="132" cy="182" rx="14" ry="8" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+<circle cx="110" cy="82" r="45" fill="#FDF7FF" stroke="#BCA9CE" stroke-width="3"/>
+<circle cx="92" cy="80" r="6" fill="#33241B"/><circle cx="94.5" cy="77.5" r="2" fill="#fff"/>
+<circle cx="128" cy="80" r="6" fill="#33241B"/><circle cx="130.5" cy="77.5" r="2" fill="#fff"/>
+<path d="M105 90 L115 90 L110 96 Z" fill="#F58BAB"/>
+<path d="M110 96 Q110 102 103 101 M110 96 Q110 102 117 101" stroke="#B98BA4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<rect x="103.5" y="100" width="6" height="8" rx="2" fill="#fff" stroke="#BCA9CE" stroke-width="1.5"/>
+<rect x="110.5" y="100" width="6" height="8" rx="2" fill="#fff" stroke="#BCA9CE" stroke-width="1.5"/>
+<ellipse cx="78" cy="94" rx="7" ry="4.5" fill="#FFC2D4" opacity=".9"/>
+<ellipse cx="142" cy="94" rx="7" ry="4.5" fill="#FFC2D4" opacity=".9"/>
+</g>`
 };
+const PETS={
+  cat:{ label:'Cat', acc:[
+    {id:'hat', n:'Top Hat', wear:true, layer:'wear', iconBox:'62 -4 96 56', svg:`<g transform="rotate(-8 110 34)">
+      <ellipse cx="110" cy="38" rx="36" ry="9" fill="#1B2757" stroke="#0D1435" stroke-width="3"/>
+      <rect x="88" y="4" width="44" height="36" rx="6" fill="#1B2757" stroke="#0D1435" stroke-width="3"/>
+      <rect x="90" y="28" width="40" height="9" fill="#FFC93C"/></g>`},
+    {id:'bow', n:'Neck Bow', wear:true, layer:'wear', iconBox:'80 103 60 34', svg:`<g>
+      <path d="M110 121 L86 109 L86 133 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M110 121 L134 109 L134 133 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="110" cy="121" r="8" fill="#FFB9C8" stroke="#C4547A" stroke-width="3"/></g>`},
+    {id:'yarn', n:'Yarn Ball', wear:false, layer:'front', iconBox:'20 148 44 44', svg:`<g>
+      <circle cx="42" cy="170" r="17" fill="#27C4C1" stroke="#188F8D" stroke-width="3"/>
+      <path d="M28 164 Q42 158 56 166 M27 174 Q42 168 57 176 M34 183 Q44 176 54 183" stroke="#188F8D" stroke-width="2.5" fill="none"/>
+      <path d="M58 176 Q76 184 88 178" stroke="#27C4C1" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>`},
+    {id:'bed', n:'Cozy Bed', wear:false, layer:'back', iconBox:'30 132 160 66', svg:`<g>
+      <ellipse cx="110" cy="158" rx="76" ry="24" fill="#5E51D8" stroke="#463CA8" stroke-width="3"/>
+      <ellipse cx="110" cy="163" rx="62" ry="16" fill="#8A7DF0"/>
+      <ellipse cx="110" cy="180" rx="76" ry="17" fill="#7A6CFF" stroke="#463CA8" stroke-width="3"/></g>`},
+    {id:'fish', n:'Fish Treat', wear:false, layer:'front', iconBox:'154 154 54 34', svg:`<g>
+      <ellipse cx="176" cy="172" rx="16" ry="10" fill="#4EA8FF" stroke="#2F7BC4" stroke-width="3"/>
+      <path d="M190 172 L203 163 L203 181 Z" fill="#4EA8FF" stroke="#2F7BC4" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="170" cy="169" r="2.2" fill="#0D1435"/></g>`} ]},
+  dog:{ label:'Dog', acc:[
+    {id:'shades', n:'Sunglasses', wear:true, layer:'wear', iconBox:'58 56 104 32', svg:`<g>
+      <rect x="76" y="63" width="28" height="18" rx="7" fill="#22243A" stroke="#0D1435" stroke-width="3"/>
+      <rect x="116" y="63" width="28" height="18" rx="7" fill="#22243A" stroke="#0D1435" stroke-width="3"/>
+      <path d="M104 70 H116 M76 70 Q68 68 64 74 M144 70 Q152 68 156 74" stroke="#0D1435" stroke-width="3" fill="none"/>
+      <path d="M82 68 q4 -3 8 0" stroke="#8FA0FF" stroke-width="2" fill="none"/>
+      <path d="M122 68 q4 -3 8 0" stroke="#8FA0FF" stroke-width="2" fill="none"/></g>`},
+    {id:'ball', n:'Tennis Ball', wear:false, layer:'front', iconBox:'22 152 40 40', svg:`<g>
+      <circle cx="42" cy="172" r="15" fill="#9DE04A" stroke="#6FA82F" stroke-width="3"/>
+      <path d="M31 162 Q42 172 31 182 M53 162 Q42 172 53 182" stroke="#F4F6FF" stroke-width="2.5" fill="none"/></g>`},
+    {id:'bone', n:'Bone', wear:false, layer:'front', iconBox:'148 152 62 40', svg:`<g stroke="#B9AECB" stroke-width="3" fill="#F4F6FF">
+      <rect x="160" y="168" width="34" height="9" rx="4.5"/>
+      <circle cx="160" cy="166" r="6.5"/><circle cx="160" cy="179" r="6.5"/>
+      <circle cx="194" cy="166" r="6.5"/><circle cx="194" cy="179" r="6.5"/></g>`},
+    {id:'house', n:'Doghouse', wear:false, layer:'back', iconBox:'-2 82 92 96', svg:`<g>
+      <rect x="10" y="118" width="66" height="54" rx="4" fill="#A9713D" stroke="#7A4E28" stroke-width="3"/>
+      <path d="M4 122 L43 88 L82 122 Z" fill="#7A4E28" stroke="#5C3A1D" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M31 172 v-18 a12 12 0 0 1 24 0 v18 Z" fill="#4A2F16"/></g>`},
+    {id:'scarf', n:'Bandana', wear:true, layer:'wear', iconBox:'70 104 80 54', svg:`<g>
+      <path d="M76 110 H144 L110 152 Z" fill="#E5484D" stroke="#B23237" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="102" cy="122" r="2.5" fill="#fff"/><circle cx="120" cy="122" r="2.5" fill="#fff"/>
+      <circle cx="111" cy="134" r="2.5" fill="#fff"/></g>`} ]},
+  bunny:{ label:'Bunny', acc:[
+    {id:'crown', n:'Flower Crown', wear:true, layer:'wear', iconBox:'70 26 80 34', svg:`<g>
+      <path d="M80 50 Q110 34 140 50" stroke="#2DD881" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <g transform="translate(86 46)"><circle r="6" cy="-6" fill="#FF8FB3"/><circle r="6" cx="5.7" cy="-1.9" fill="#FF8FB3"/><circle r="6" cx="3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-5.7" cy="-1.9" fill="#FF8FB3"/><circle r="4" fill="#FFC93C" stroke="#D9A21B" stroke-width="1.5"/></g>
+      <g transform="translate(110 40)"><circle r="6" cy="-6" fill="#C86BFF"/><circle r="6" cx="5.7" cy="-1.9" fill="#C86BFF"/><circle r="6" cx="3.5" cy="4.9" fill="#C86BFF"/><circle r="6" cx="-3.5" cy="4.9" fill="#C86BFF"/><circle r="6" cx="-5.7" cy="-1.9" fill="#C86BFF"/><circle r="4" fill="#FFC93C" stroke="#D9A21B" stroke-width="1.5"/></g>
+      <g transform="translate(134 46)"><circle r="6" cy="-6" fill="#FF8FB3"/><circle r="6" cx="5.7" cy="-1.9" fill="#FF8FB3"/><circle r="6" cx="3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-3.5" cy="4.9" fill="#FF8FB3"/><circle r="6" cx="-5.7" cy="-1.9" fill="#FF8FB3"/><circle r="4" fill="#FFC93C" stroke="#D9A21B" stroke-width="1.5"/></g></g>`},
+    {id:'carrot', n:'Carrot', wear:false, layer:'front', iconBox:'152 126 52 70', svg:`<g transform="rotate(16 178 168)">
+      <path d="M170 152 L186 152 L178 190 Z" fill="#FF8C42" stroke="#D96A24" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M173 150 q-6 -10 -2 -14 M178 150 q0 -12 4 -16 M183 150 q6 -8 4 -14" stroke="#2DD881" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>`},
+    {id:'bow', n:'Ear Bow', wear:true, layer:'wear', iconBox:'110 32 52 32', svg:`<g transform="rotate(12 134 46)">
+      <path d="M134 46 L114 36 L114 56 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M134 46 L154 36 L154 56 Z" fill="#F27E9D" stroke="#C4547A" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="134" cy="46" r="6.5" fill="#FFB9C8" stroke="#C4547A" stroke-width="3"/></g>`},
+    {id:'garden', n:'Garden Patch', wear:false, layer:'front', iconBox:'26 156 64 36', svg:`<g stroke-linecap="round">
+      <path d="M34 186 q2 -12 6 -14 M42 186 q0 -10 -4 -16 M50 186 q2 -8 6 -12" stroke="#2DD881" stroke-width="3.5" fill="none"/>
+      <path d="M170 186 q2 -12 6 -14 M178 186 q0 -10 -4 -16 M186 186 q2 -8 6 -12" stroke="#2DD881" stroke-width="3.5" fill="none"/>
+      <circle cx="58" cy="176" r="4.5" fill="#FFC93C"/><circle cx="166" cy="178" r="4.5" fill="#FF8FB3"/></g>`},
+    {id:'scarf', n:'Tiny Scarf', wear:true, layer:'wear', iconBox:'74 102 72 60', svg:`<g>
+      <rect x="80" y="110" width="60" height="15" rx="7.5" fill="#27C4C1" stroke="#188F8D" stroke-width="3"/>
+      <rect x="118" y="121" width="15" height="30" rx="7" fill="#27C4C1" stroke="#188F8D" stroke-width="3"/>
+      <path d="M121 147 v5 M126 147 v5 M131 147 v5" stroke="#188F8D" stroke-width="2.5"/></g>`} ]}
+};
+function petSVG(type,equipped,size){
+  const def=PETS[type], eq=new Set(equipped||[]);
+  const back=[],wear=[],front=[];
+  def.acc.forEach(a=>{
+    if(!eq.has(a.id)) return;
+    (a.layer==='back'?back:a.layer==='front'?front:wear).push(a.svg);
+  });
+  const dims=size?`width="${size}" height="${Math.round(size*200/220)}"`:'';
+  return `<svg viewBox="0 0 220 200" ${dims} xmlns="http://www.w3.org/2000/svg">${PET_SHADOW}${back.join('')}${PET_ART[type]}${wear.join('')}${front.join('')}</svg>`;
+}
+function accIconSVG(a){
+  return `<svg viewBox="${a.iconBox}" xmlns="http://www.w3.org/2000/svg">${a.svg}</svg>`;
+}
 const stripVS=s=>String(s).replace(/\uFE0F/g,'');
 const BASE_SET=new Set(ANIMALS.map(stripVS));
 function emojiPrice(e){
@@ -1272,7 +1392,7 @@ async function renderPetsTab(){
   if(!pets.length) mine.innerHTML='<p class="hint">No pets yet — adopt one below!</p>';
   pets.forEach(p=>{
     const d=document.createElement('div'); d.className='petcard';
-    d.innerHTML=`<span class="pe">${PETS[p.type].emoji}</span>
+    d.innerHTML=`<span class="pe">${petSVG(p.type,p.equipped,52)}</span>
       <div class="who"><div class="nm">${esc(p.name)}</div>
       <div class="sub">${PETS[p.type].label} · ${(p.accessories||[]).length}/5 accessories</div></div>
       <span class="chip-btn">Visit</span>`;
@@ -1282,7 +1402,7 @@ async function renderPetsTab(){
   const shop=$('#petshop'); shop.innerHTML='';
   Object.keys(PETS).forEach(t=>{
     const d=document.createElement('div'); d.className='petcard';
-    d.innerHTML=`<span class="pe">${PETS[t].emoji}</span>
+    d.innerHTML=`<span class="pe">${petSVG(t,[],52)}</span>
       <div class="who"><div class="nm">${PETS[t].label}</div></div>
       <span class="chip-btn">Adopt</span>`;
     d.onclick=()=>adoptPet(t);
@@ -1331,20 +1451,19 @@ function renderPet(){
   $('#pet-name').textContent=p.name;
   $('#pet-mood').textContent=petMood(p);
   const st=$('#pet-stage');
-  st.innerHTML=`<span class="pet" onclick="petPet()">${def.emoji}</span>`;
-  (p.equipped||[]).forEach(id=>{
-    const a=def.acc.find(x=>x.id===id); if(!a) return;
-    const s=document.createElement('span'); s.className='acc '+a.slot; s.textContent=a.e;
-    st.appendChild(s);
-  });
+  st.innerHTML=petSVG(p.type,p.equipped);
+  st.onclick=()=>petPet();
   const w=$('#pet-acc'); w.innerHTML='';
   def.acc.forEach(a=>{
     const own=(p.accessories||[]).includes(a.id);
     const eq=(p.equipped||[]).includes(a.id);
+    const status = own ? (a.wear ? (eq?'Wearing':'In the closet') : (eq?'In the room':'Put away'))
+                       : '🪙 '+ACC_PRICE.toLocaleString();
+    const action = own ? (a.wear ? (eq?'Take off':'Put on') : (eq?'Put away':'Set out')) : 'Buy';
     const d=document.createElement('div'); d.className='row';
-    d.innerHTML=`<div class="av" style="background:var(--panel)">${a.e}</div>
-      <div class="who"><div class="nm">${a.n}</div><div class="sub">${own?(eq?'Equipped':'In the toybox'):'🪙 '+ACC_PRICE.toLocaleString()}</div></div>
-      <button class="chip-btn ${eq?'on':''}">${own?(eq?'Take off':'Put on'):'Buy'}</button>`;
+    d.innerHTML=`<div class="accicon">${accIconSVG(a)}</div>
+      <div class="who"><div class="nm">${a.n}</div><div class="sub">${status}</div></div>
+      <button class="chip-btn ${eq?'on':''}">${action}</button>`;
     d.querySelector('button').onclick=async ev=>{
       ev.stopPropagation();
       if(!own){ await buyAccessory(a); return; }
@@ -1356,7 +1475,7 @@ function renderPet(){
 }
 async function buyAccessory(a){
   if((profile.coins||0)<ACC_PRICE){ toast('Not enough coins — accessories are 5,000 🪙'); return; }
-  if(!await modal(`Buy ${a.e} ${a.n} for ${ACC_PRICE.toLocaleString()} coins?`,{okLabel:'Buy'})) return;
+  if(!await modal(`Buy the ${a.n} for ${ACC_PRICE.toLocaleString()} coins?`,{okLabel:'Buy'})) return;
   await patchProfile({ coins:(profile.coins||0)-ACC_PRICE });
   await patchPet(curPet,{ accessories:[...(curPet.accessories||[]),a.id], equipped:[...(curPet.equipped||[]),a.id] });
   sfx('win'); renderPet();
