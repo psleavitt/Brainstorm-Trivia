@@ -743,7 +743,9 @@ async function refreshProfile(){
 }
 
 /* ================= THE TRIVIA API ================= */
-async function fetchQuestions(cat,diff){
+const SEEN_WINDOW = 400;     // how many recently-served questions the family "remembers"
+const TOPUP_TRIES = 3;       // extra draws attempted to backfill fresh questions
+async function fetchBatch(cat,diff){
   const p=new URLSearchParams({ limit:String(N_QUESTIONS), difficulties:diff, types:'text_choice' });
   if(CATS[cat].slug) p.set('categories', CATS[cat].slug);
   const r=await fetch('https://the-trivia-api.com/v2/questions?'+p.toString());
@@ -753,11 +755,49 @@ async function fetchQuestions(cat,diff){
   if(!Array.isArray(j) || !j.length) throw new Error('otdb');
   return j.map(normalizeQ);
 }
+async function getSeenIds(){
+  if(cloudReady()){
+    try{
+      const rows=await sbGet('bt_seen_questions',`sync_code=eq.${enc(sync)}&select=question_id&order=seen_at.desc&limit=${SEEN_WINDOW}`);
+      return rows.map(r=>r.question_id);
+    }catch(e){}
+  }
+  return JSON.parse(localStorage.getItem('bt_seen_qids')||'[]');
+}
+function recordSeen(ids){
+  if(!ids || !ids.length) return;
+  (async()=>{
+    try{
+      if(cloudReady()){
+        await sbInsert('bt_seen_questions', ids.map(id=>({ sync_code:sync, question_id:id })));
+      } else {
+        const cur=JSON.parse(localStorage.getItem('bt_seen_qids')||'[]');
+        localStorage.setItem('bt_seen_qids', JSON.stringify([...ids,...cur].slice(0,SEEN_WINDOW)));
+      }
+    }catch(e){}
+  })();
+}
+async function fetchQuestions(cat,diff){
+  const seenSet=new Set(await getSeenIds());
+  const poolIds=new Set(); let pool=[];
+  for(let tries=0; tries<TOPUP_TRIES; tries++){
+    let batch;
+    try{ batch=await fetchBatch(cat,diff); }
+    catch(e){ if(tries===0) throw e; break; }
+    for(const q of batch){ if(!poolIds.has(q.id)){ poolIds.add(q.id); pool.push(q); } }
+    if(pool.filter(q=>!seenSet.has(q.id)).length>=N_QUESTIONS) break;
+  }
+  const fresh=shuffle(pool.filter(q=>!seenSet.has(q.id)));
+  const stale=shuffle(pool.filter(q=>seenSet.has(q.id)));
+  const finalQs=[...fresh,...stale].slice(0,N_QUESTIONS);
+  recordSeen(finalQs.map(q=>q.id));
+  return finalQs;
+}
 function normalizeQ(r){
   const correct=r.correctAnswer;
   const all=shuffle([ ...r.incorrectAnswers, correct ]);
   const catLabel=String(r.category||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-  return { q:r.question.text, answers:all, correct:all.indexOf(correct), cat:catLabel };
+  return { id:r.id, q:r.question.text, answers:all, correct:all.indexOf(correct), cat:catLabel };
 }
 function questionError(e){
   toast(e.message==='rate'
