@@ -339,13 +339,14 @@ button.answer:disabled{opacity:.92}
   </div>
   <div class="grouplabel">Topic</div>
   <div class="chips" id="setup-cats"></div>
+  <input class="txt hidden" id="setup-topic" maxlength="60" placeholder="Type any topic — Dinosaurs, Taylor Swift, The 1990s…">
   <div class="grouplabel">Difficulty</div>
   <div class="chips" id="setup-diffs"></div>
   <button class="btn" id="setup-start" onclick="setupStart()">Start</button>
   <div class="card">
     <p class="hint">Scoring: 100 points per correct answer, plus up to 100 more for speed.
     Streaks add up to +25%. Difficulty multiplies everything — easy ×1, medium ×1.5, hard ×2.</p>
-    <p class="hint" style="margin-top:8px">Questions from The Trivia API</p>
+    <p class="hint" style="margin-top:8px" id="setup-source">Questions from The Trivia API</p>
   </div>
 </section>
 
@@ -536,8 +537,11 @@ const CATS = {
   geography:{ slug:'geography',           label:'🌍 Geography' },
   art:      { slug:'arts_and_literature', label:'🎨 Art'       },
   sports:   { slug:'sport_and_leisure',   label:'🏈 Sports'    },
-  history:  { slug:'history',             label:'🏛️ History'  }
+  history:  { slug:'history',             label:'🏛️ History'  },
+  custom:   { slug:null,                  label:'✨ Custom'    }
 };
+const CUSTOM_FN_URL = SB_URL + '/functions/v1/generate-trivia';
+const CUSTOM_SEEN_WINDOW = 40; // recent questions per topic fed to Claude as "avoid these"
 const COLORS = ['#FF5470','#FF8C42','#FFC93C','#9DE04A','#2DD881','#27C4C1',
                 '#4EA8FF','#7A6CFF','#C86BFF','#FF6BD6','#A9713D','#96A6C8'];
 const ANIMALS = ['🦁','🐯','🐻','🐼','🐨','🦊','🦝','🐺','🐶','🐱','🐹','🐰',
@@ -633,7 +637,7 @@ let setupMode = 'solo';
 let setupCat = 'general', setupDiff = 'medium';
 
 const game = { mode:'solo', questions:[], idx:0, score:0, streak:0, bestStreak:0,
-               correct:0, deadline:0, raf:null, locked:false, diff:'medium', cat:'general' };
+               correct:0, deadline:0, raf:null, locked:false, diff:'medium', cat:'general', isCustom:false };
 
 const mp = { code:null, isHost:false, room:null, players:[], meRow:null, pollId:null,
              lastQ:-1, shownReveal:-1, answered:false, advancing:false, saved:false };
@@ -793,6 +797,75 @@ async function fetchQuestions(cat,diff){
   recordSeen(finalQs.map(q=>q.id));
   return finalQs;
 }
+
+/* ================= CLAUDE-ASSISTED CUSTOM TOPICS ================= */
+function textHash(s){
+  let h=7; const norm=s.toLowerCase().trim().replace(/\s+/g,' ');
+  for(const c of norm){ h=(h*31 + c.codePointAt(0))>>>0; }
+  return 'h'+h.toString(16)+norm.length;
+}
+function topicKeyOf(topic){ return topic.toLowerCase().trim().replace(/\s+/g,' '); }
+async function getCustomAvoid(topicKey){
+  if(cloudReady()){
+    try{
+      const rows=await sbGet('bt_custom_seen',
+        `sync_code=eq.${enc(sync)}&topic_key=eq.${enc(topicKey)}&select=question_text&order=seen_at.desc&limit=${CUSTOM_SEEN_WINDOW}`);
+      return rows.map(r=>r.question_text);
+    }catch(e){}
+  }
+  const all=JSON.parse(localStorage.getItem('bt_custom_seen_local')||'{}');
+  return (all[topicKey]||[]).slice(0,CUSTOM_SEEN_WINDOW).map(x=>x.t);
+}
+function recordCustomSeen(topicKey,questions){
+  if(!questions.length) return;
+  (async()=>{
+    try{
+      if(cloudReady()){
+        await sbInsert('bt_custom_seen', questions.map(q=>({
+          sync_code:sync, topic_key:topicKey, question_hash:textHash(q.q), question_text:q.q })));
+      } else {
+        const all=JSON.parse(localStorage.getItem('bt_custom_seen_local')||'{}');
+        const cur=all[topicKey]||[];
+        all[topicKey]=[...questions.map(q=>({t:q.q})), ...cur].slice(0,CUSTOM_SEEN_WINDOW);
+        localStorage.setItem('bt_custom_seen_local', JSON.stringify(all));
+      }
+    }catch(e){}
+  })();
+}
+function normalizeCustomQ(r,topicLabel){
+  const correctText=r.options[r.correctIndex];
+  const all=shuffle(r.options);
+  return { id:textHash(r.question), q:r.question, answers:all, correct:all.indexOf(correctText), cat:topicLabel };
+}
+async function callGenerateTrivia(topic,diff,count,avoid){
+  const res=await fetch(CUSTOM_FN_URL,{ method:'POST', headers:sbHeaders(),
+    body:JSON.stringify({ topic, difficulty:diff, count, avoid }) });
+  if(!res.ok) throw new Error('claude');
+  const j=await res.json();
+  if(j.error) throw new Error('claude: '+j.error);
+  if(!Array.isArray(j.questions) || !j.questions.length) throw new Error('claude');
+  return j.questions;
+}
+async function fetchCustomQuestions(topic,diff){
+  if(!cloudReady()) throw new Error('Custom topics need your family sync code and Supabase key set up first');
+  const topicLabel=topic.trim();
+  const topicKey=topicKeyOf(topicLabel);
+  const avoid=await getCustomAvoid(topicKey);
+  const raw=await callGenerateTrivia(topicLabel,diff,N_QUESTIONS,avoid);
+  const byId=new Map();
+  raw.forEach(r=>{ const q=normalizeCustomQ(r,topicLabel); if(!byId.has(q.id)) byId.set(q.id,q); });
+  let qs=[...byId.values()];
+  // if Claude under-delivered (e.g. very narrow topic), try once more for the shortfall
+  if(qs.length<N_QUESTIONS){
+    try{
+      const more=await callGenerateTrivia(topicLabel,diff,N_QUESTIONS-qs.length,[...avoid,...qs.map(q=>q.q)]);
+      more.forEach(r=>{ const q=normalizeCustomQ(r,topicLabel); if(!byId.has(q.id)){ byId.set(q.id,q); qs.push(q); } });
+    }catch(e){}
+  }
+  if(!qs.length) throw new Error('claude');
+  recordCustomSeen(topicKey,qs);
+  return qs;
+}
 function normalizeQ(r){
   const correct=r.correctAnswer;
   const all=shuffle([ ...r.incorrectAnswers, correct ]);
@@ -800,6 +873,11 @@ function normalizeQ(r){
   return { id:r.id, q:r.question.text, answers:all, correct:all.indexOf(correct), cat:catLabel };
 }
 function questionError(e){
+  if(e.message==='claude' || (e.message||'').startsWith('claude:')){
+    toast('Claude couldn\'t write trivia for that topic — try rephrasing it or trying again.');
+    return;
+  }
+  if(e.message && e.message.includes('sync code')){ toast(e.message); return; }
   toast(e.message==='rate'
     ? 'The trivia server needs a breather — try again in a few seconds.'
     : 'Couldn\'t load questions. Check your connection and try again.');
@@ -819,9 +897,10 @@ function openSetup(mode){
   Object.keys(CATS).forEach(k=>{
     const b=document.createElement('button');
     b.className='chip-btn'+(k===setupCat?' on':''); b.textContent=CATS[k].label;
-    b.onclick=()=>{ setupCat=k; cw.querySelectorAll('.chip-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+    b.onclick=()=>{ setupCat=k; cw.querySelectorAll('.chip-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); updateSetupCustomUI(); };
     cw.appendChild(b);
   });
+  updateSetupCustomUI();
   const dw=$('#setup-diffs'); dw.innerHTML='';
   ['easy','medium','hard'].forEach(k=>{
     const b=document.createElement('button');
@@ -832,23 +911,35 @@ function openSetup(mode){
   });
   showScreen('scr-setup');
 }
+function updateSetupCustomUI(){
+  const isCustom=setupCat==='custom';
+  $('#setup-topic').classList.toggle('hidden',!isCustom);
+  $('#setup-source').textContent = isCustom
+    ? 'Questions written by Claude, just for your topic'
+    : 'Questions from The Trivia API';
+}
 async function setupStart(){
   const btn=$('#setup-start'); btn.disabled=true;
+  const topic=$('#setup-topic').value.trim();
+  if(setupCat==='custom' && !topic){ toast('Type a topic first'); btn.disabled=false; return; }
+  const origLabel=btn.textContent;
+  if(setupCat==='custom') btn.textContent='Cooking up trivia…';
   try{
     if(setupMode==='solo'){
-      const qs=await fetchQuestions(setupCat,setupDiff);
-      startGame(qs,'solo',setupCat,setupDiff);
+      const qs = setupCat==='custom' ? await fetchCustomQuestions(topic,setupDiff) : await fetchQuestions(setupCat,setupDiff);
+      startGame(qs,'solo', setupCat==='custom'?topic:setupCat, setupDiff, setupCat==='custom');
     } else {
-      await createRoom(setupCat,setupDiff);
+      await createRoom(setupCat,setupDiff,topic);
     }
   }catch(e){ questionError(e); }
+  btn.textContent=origLabel;
   btn.disabled=false;
 }
 
 /* ================= GAME ENGINE (shared) ================= */
-function startGame(qs,mode,cat,diff){
+function startGame(qs,mode,cat,diff,isCustom){
   Object.assign(game,{ mode, questions:qs, idx:0, score:0, streak:0, bestStreak:0,
-                       correct:0, locked:false, cat, diff });
+                       correct:0, locked:false, cat, diff, isCustom:!!isCustom });
   startQuestion(0);
 }
 function startQuestion(i,deadline){
@@ -969,8 +1060,8 @@ async function finishSolo(){
 }
 async function playAgain(){
   try{
-    const qs=await fetchQuestions(game.cat,game.diff);
-    startGame(qs,'solo',game.cat,game.diff);
+    const qs = game.isCustom ? await fetchCustomQuestions(game.cat,game.diff) : await fetchQuestions(game.cat,game.diff);
+    startGame(qs,'solo',game.cat,game.diff,game.isCustom);
   }catch(e){ questionError(e); }
 }
 
@@ -978,13 +1069,13 @@ async function playAgain(){
 function roomCodeGen(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ';
   return Array.from({length:4},()=>A[Math.floor(Math.random()*A.length)]).join(''); }
 
-async function createRoom(cat,diff){
-  const qs=await fetchQuestions(cat,diff);
+async function createRoom(cat,diff,topic){
+  const qs = cat==='custom' ? await fetchCustomQuestions(topic,diff) : await fetchQuestions(cat,diff);
   let code=roomCodeGen();
   for(let tries=0; tries<3; tries++){
     try{
       await sbInsert('bt_rooms',{ code, sync_code:sync, host_id:profile.id, category:cat,
-        difficulty:diff, questions:qs, status:'lobby', phase:'lobby' });
+        difficulty:diff, topic: cat==='custom'?topic:null, questions:qs, status:'lobby', phase:'lobby' });
       break;
     }catch(e){ code=roomCodeGen(); if(tries===2) throw e; }
   }
@@ -1048,8 +1139,10 @@ function routeMp(room){
     if(room.current_q!==mp.lastQ){
       mp.lastQ=room.current_q; mp.answered=false;
       if(mp.lastQ===0){
+        const isCustom = room.category==='custom';
         Object.assign(game,{ mode:'multi', questions:room.questions, score:0, streak:0,
-          bestStreak:0, correct:0, cat:room.category, diff:room.difficulty });
+          bestStreak:0, correct:0, cat: isCustom ? (room.topic||'Custom topic') : room.category,
+          diff:room.difficulty, isCustom });
       }
       const started=new Date(room.q_start).getTime();
       const now=Date.now();
@@ -1062,7 +1155,8 @@ function routeMp(room){
   }
 }
 function renderLobbyPlayers(){
-  $('#lobby-meta').textContent=`${CATS[mp.room.category].label} · ${DIFF_LABEL[mp.room.difficulty]} · ${mp.room.questions.length} questions`;
+  const topicLabel = mp.room.category==='custom' ? `✨ ${mp.room.topic||'Custom topic'}` : CATS[mp.room.category].label;
+  $('#lobby-meta').textContent=`${topicLabel} · ${DIFF_LABEL[mp.room.difficulty]} · ${mp.room.questions.length} questions`;
   const w=$('#lobby-players'); w.innerHTML='';
   mp.players.forEach(p=>{
     const d=document.createElement('div'); d.className='row'+(p.id===mp.meRow.id?' me':'');
